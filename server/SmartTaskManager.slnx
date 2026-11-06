@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SmartTaskManager.Api/SmartTaskManager.Api.csproj" Id="35d6f14f-8976-4db9-af28-632f15253764" />
+    <Project Path="src/SmartTaskManager.Application/SmartTaskManager.Application.csproj" Id="cf722fd0-44c4-45d9-a271-dc90740e496e" />
+    <Project Path="src/SmartTaskManager.Domain/SmartTaskManager.Domain.csproj" Id="df41cfcf-8b2f-4a6f-a2d6-98c295bdcc16" />
+    <Project Path="src/SmartTaskManager.Infrastructure/SmartTaskManager.Infrastructure.csproj" Id="1139d74d-f16b-444c-a31d-355be3a5a1a3" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SmartTaskManager.Api.IntegrationTests/SmartTaskManager.Api.IntegrationTests.csproj" />
+    <Project Path="tests/SmartTaskManager.Application.UnitTests/SmartTaskManager.Application.UnitTests.csproj" />
+    <Project Path="tests/SmartTaskManager.Domain.UnitTests/SmartTaskManager.Domain.UnitTests.csproj" />
+    <Project Path="tests/SmartTaskManager.Infrastructure.UnitTests/SmartTaskManager.Infrastructure.UnitTests.csproj" />
+  </Folder>
+</Solution>
