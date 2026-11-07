@@ -23,6 +23,7 @@ public static class DependencyInjection
         services.AddJwtConfiguration();
 
         services.AddSingleton<SlowQueryInterceptor>();
+        services.AddScoped<AuditableEntityInterceptor>();
         services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
         {
             var database = serviceProvider.GetRequiredService<IOptions<DatabaseOptions>>().Value;
@@ -32,7 +33,9 @@ public static class DependencyInjection
                     database.MaxRetryCount,
                     TimeSpan.FromSeconds(database.MaxRetryDelaySeconds),
                     errorNumbersToAdd: null))
-                .AddInterceptors(serviceProvider.GetRequiredService<SlowQueryInterceptor>());
+                .AddInterceptors(
+                    serviceProvider.GetRequiredService<SlowQueryInterceptor>(),
+                    serviceProvider.GetRequiredService<AuditableEntityInterceptor>());
         });
 
         services.TryAddSingleton(TimeProvider.System);

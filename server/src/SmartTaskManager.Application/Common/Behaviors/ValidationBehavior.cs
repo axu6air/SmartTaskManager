@@ -1,10 +1,11 @@
 using FluentValidation;
+using FluentValidation.Results;
 using MediatR;
 using SmartTaskManager.Application.Common.Results;
 
 namespace SmartTaskManager.Application.Common.Behaviors;
 
-// The only place requests are validated. Handlers can assume a valid request.
+// Validates every command and query. Handlers can assume a valid request.
 public sealed class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators)
     : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
@@ -13,7 +14,7 @@ public sealed class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidat
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken ct)
     {
         var context = new ValidationContext<TRequest>(request);
-        var failures = new List<FluentValidation.Results.ValidationFailure>();
+        var failures = new List<ValidationFailure>();
 
         foreach (var validator in validators)
         {
@@ -21,15 +22,6 @@ public sealed class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidat
             failures.AddRange(result.Errors);
         }
 
-        if (failures.Count == 0)
-        {
-            return await next();
-        }
-
-        var details = failures
-            .GroupBy(f => f.PropertyName)
-            .ToDictionary(g => g.Key, g => g.Select(f => f.ErrorMessage).Distinct().ToArray());
-
-        return TResponse.Failure(new Error(ErrorType.Validation, "One or more validation errors occurred.", details));
+        return failures.Count == 0 ? await next() : TResponse.Failure(failures.ToError());
     }
 }

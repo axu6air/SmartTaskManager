@@ -1,7 +1,7 @@
-﻿using MediatR;
+using FluentValidation;
+using MediatR;
 using SmartTaskManager.Api.Common;
 using SmartTaskManager.Application.Features.Auth.Commands.Login;
-using static SmartTaskManager.Api.Endpoints.AuthEndpoints;
 
 namespace SmartTaskManager.Api.Endpoints.Auth;
 
@@ -10,7 +10,7 @@ public static class LoginEndpoint
     public static void MapLogin(this IEndpointRouteBuilder app)
     {
         app.MapPost(
-                "/api/orders/Categories/",
+                "/login",
                 async (
                     LoginRequest request,
                     HttpContext http,
@@ -34,7 +34,7 @@ public static class LoginEndpoint
             )
             .Produces<ApiResponse<LoginResponse>>(StatusCodes.Status200OK)
             .Produces<ApiResponse<object>>(StatusCodes.Status400BadRequest)
-            .Produces<ApiResponse<object>>(StatusCodes.Status401Unauthorized);
-        ;
+            .Produces<ApiResponse<object>>(StatusCodes.Status401Unauthorized)
+            .AddEndpointFilter<ValidationFilter<LoginRequest>>();
     }
 }

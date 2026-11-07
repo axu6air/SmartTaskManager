@@ -1,3 +1,4 @@
+using SmartTaskManager.Api;
 using SmartTaskManager.Api.Authentication;
 using SmartTaskManager.Api.Authorization;
 using SmartTaskManager.Api.Endpoints;
@@ -8,9 +9,11 @@ using SmartTaskManager.Infrastructure.Persistence.Initialization;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddApi();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
 builder.Services.AddJwtAuthentication();
+builder.Services.AddValidators();
 
 var app = builder.Build();
 
@@ -26,5 +29,7 @@ app.UseAuthentication();
 app.UseEndpointAuthorization();
 
 app.MapAuthEndpoints();
+app.MapProjectEndpoints();
+app.MapTaskEndpoints();
 
 await app.RunAsync();

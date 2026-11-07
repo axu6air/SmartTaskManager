@@ -1,5 +1,4 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+using SmartTaskManager.Api.Authentication;
 using SmartTaskManager.Application.Common.Abstractions;
 
 namespace SmartTaskManager.Api.Authorization;
@@ -21,7 +20,7 @@ public sealed class EndpointAuthorizationMiddleware(RequestDelegate next)
 
         if (needsAuthentication)
         {
-            if (!TryGetUserId(context.User, out var userId))
+            if (context.User.GetUserId() is not { } userId)
             {
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 return;
@@ -39,16 +38,5 @@ public sealed class EndpointAuthorizationMiddleware(RequestDelegate next)
         }
 
         await next(context);
-    }
-
-    private static bool TryGetUserId(ClaimsPrincipal user, out Guid userId)
-    {
-        // "sub" is mapped to NameIdentifier by default, so accept either.
-        var value =
-            user.FindFirstValue(JwtRegisteredClaimNames.Sub)
-            ?? user.FindFirstValue(ClaimTypes.NameIdentifier);
-        userId = Guid.Empty;
-
-        return user.Identity?.IsAuthenticated == true && Guid.TryParse(value, out userId);
     }
 }

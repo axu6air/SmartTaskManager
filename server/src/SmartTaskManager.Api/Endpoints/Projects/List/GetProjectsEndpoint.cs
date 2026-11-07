@@ -1,0 +1,35 @@
+using MediatR;
+using SmartTaskManager.Api.Authorization;
+using SmartTaskManager.Api.Common;
+using SmartTaskManager.Application.Common;
+using SmartTaskManager.Application.Common.Security;
+using SmartTaskManager.Application.Features.Projects;
+using SmartTaskManager.Application.Features.Projects.Queries.GetProjects;
+
+namespace SmartTaskManager.Api.Endpoints.Projects.List;
+
+public static class GetProjectsEndpoint
+{
+    public static void MapGetProjects(this IEndpointRouteBuilder app)
+    {
+        app.MapGet(
+                "/",
+                async (
+                    HttpContext http,
+                    ISender sender,
+                    CancellationToken ct,
+                    int page = 1,
+                    int pageSize = 30
+                ) =>
+                {
+                    var result = await sender.Send(new GetProjectsQuery(page, pageSize), ct);
+                    return result.ToHttpResult(http);
+                }
+            )
+            .WithName("GetProjects")
+            .WithSummary("Lists the projects the user may see, one page at a time.")
+            .Produces<ApiResponse<PagedResponse<ProjectSummary>>>()
+            .ProducesErrors(StatusCodes.Status401Unauthorized, StatusCodes.Status403Forbidden)
+            .Authorize(Permissions.Projects.View);
+    }
+}
