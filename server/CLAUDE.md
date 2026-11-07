@@ -21,7 +21,7 @@ Apply these to every change. When they pull in different directions, **KISS wins
 - **Dependency Inversion:** Application defines abstractions; Infrastructure implements them. High-level code never references concrete infrastructure.
 - **DRY:** one source of truth for each piece of knowledge: permission codes, error definitions, paging rules, the response envelope, the `Result` → HTTP mapping. Extract only real, repeated knowledge. Two pieces of code that look alike but change for different reasons are **not** duplication.
 - **KISS:**
-  - No speculative abstractions, no generic repository over EF Core, no base classes that exist "in case".
+  - No speculative abstractions and no base classes that exist "in case". The one sanctioned abstraction over EF Core is the repository pattern below.
   - No new package when a few lines of clear code will do.
   - Prefer plain, readable code to clever code.
 
@@ -67,7 +67,7 @@ Before saying a task is finished: `dotnet build` and `dotnet test` must pass, wi
 
 ## Architecture rules (enforced by architecture tests, never break them)
 
-- **Domain** references nothing.
+- **Domain** references nothing. Entities are grouped by aggregate: `Domain/Authorization`, `Domain/Identity`, `Domain/Projects`, `Domain/Auditing`, Shared building blocks (`Entity`, `ITrackCreated`, `ITrackUpdated`, `ISoftDeletable`) sit in the root `SmartTaskManager.Domain` namespace.
 - **Application** references Domain only. No ASP.NET Core, Serilog or HTTP types, except `Microsoft.EntityFrameworkCore` for `IApplicationDbContext`.
 - **Infrastructure** references Application.
 - **Api** references Application, and Infrastructure only for DI registration in `Program.cs`.
@@ -127,6 +127,18 @@ The database is designed and changed in SQL. EF Core only maps to it.
 - **Domain entities are hand-written and rich**, not scaffolded. `dotnet ef dbcontext scaffold` may be run into a throwaway folder **for reference only**; never commit its output and never replace domain entities with scaffolded classes.
 - **EF configurations** (`IEntityTypeConfiguration<T>`, one per entity in `Infrastructure/Persistence/Configurations/`) must mirror the schema exactly: table and column names, types, lengths, nullability, keys, FKs and delete behavior. When a mapping and the schema disagree, the schema wins.
 - **Reference seed data** (roles, permission modules, permissions, role grants) lives in the SQL script. Demo users are created at app startup through the real password hasher, in Development only, and only if they don't exist.
+- **Development startup** calls `InitializeDatabaseAsync()` (Infrastructure/Persistence/Initialization). `DatabaseCreator` creates the database and runs the embedded `rbac-schema.sql` only when `dbo.Users` is missing; `DemoDataSeeder` then adds the demo users, projects and tasks. A failure is logged and does not stop the app. The connection string comes from the `Database:ConnectionString` setting (user secrets).
+
+### Repositories
+
+The repository pattern is the data-access abstraction. It has three layers:
+
+- `IRepository<TEntity>` (Domain/Repositories): the contract for entities that derive from `Entity`. It is split into `IBaseCommandRepository` and `IBaseQueryRepository`.
+- `IEfRepository<TEntity, TContext>` and the abstract `Repository<TEntity, TContext>` (Infrastructure/Repositories/Abstractions): the EF Core implementation. `Repository` maps SQL and EF failures to `RepositoryException`.
+- One repository per entity that derives from `Entity`: `I<Entity>Repository : IRepository<T>` in Domain/Repositories, and `<Entity>Repository : Repository<T, ApplicationDbContext>, I<Entity>Repository` in Infrastructure/Repositories.
+- Add a method to a specific repository only when the generic API cannot express the query, for example loading an aggregate with its children (`FindWithMembersAsync`). Do not add speculative methods.
+- Join entities with composite keys (`UserRole`, `RolePermission`, `ProjectMember`) have no repository. Reach them through their aggregate root (`User`, `Role`, `Project`).
+- Handlers depend on repository interfaces, never on `ApplicationDbContext`.
 
 ### Mapping and query rules
 
@@ -164,7 +176,7 @@ Tests run on SQLite in-memory, while production runs on SQL Server. Keep the EF 
 - **Check permissions, never roles.** Endpoints call `.RequirePermission(Permissions.Tasks.Update)`, an extension over `RequireAuthorization` backed by a permission policy provider. **Never** use role-based authorization or check role names in code. Roles are data that Admins edit at runtime.
 - **Permission codes** live in `Application/Common/Security/Permissions.cs` and must match `dbo.Permissions.Code` exactly. A new permission needs a constant, a row in the SQL schema and change script, and a grant to the Admin role.
 - **Permissions are resolved server-side** per request through `IPermissionService`, cached with `HybridCache` keyed by user ID. **They are not stored in the JWT.** Invalidate the cache whenever a user's roles or a role's grants change.
-- **Scopes:** each grant has a `PermissionScope` flags value: Assigned = 1, Managed = 2, Member = 4, All = 8.
+- **Scopes:** each grant has a `PermissionScopes` flags value: Assigned = 1, Managed = 2, Member = 4, All = 8.
   - Combine a user's scopes across roles with **bitwise OR**.
   - Grant access if **any** set flag's condition holds.
   - Scopes are not a hierarchy, so never compare them with `>` or `<`.

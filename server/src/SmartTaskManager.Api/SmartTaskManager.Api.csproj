@@ -1,15 +1,20 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
-
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <UserSecretsId>4d3116f6-7e8f-4796-be3a-5ad8bec2efda</UserSecretsId>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\SmartTaskManager.Application\SmartTaskManager.Application.csproj" />
     <ProjectReference Include="..\SmartTaskManager.Infrastructure\SmartTaskManager.Infrastructure.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
     <PackageReference Include="Serilog.AspNetCore" />
   </ItemGroup>
-
+  <ItemGroup>
+    <Folder Include="Endpoints\Auth\" />
+    <Folder Include="Endpoints\Tasks\" />
+    <Folder Include="Endpoints\Projects\" />
+  </ItemGroup>
 </Project>

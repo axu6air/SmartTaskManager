@@ -44,18 +44,23 @@ public abstract partial class Repository<TEntity, TContext> : IEfRepository<TEnt
     )
     {
         return await ExecuteAsync(
-                async (ct) =>
-                {
-                    await using var transaction = await Context.Database.BeginTransactionAsync(
-                        isolationLevel,
-                        ct
-                    );
+                // A user-started transaction must run inside the execution strategy when retry-on-failure is enabled.
+                (ct) =>
+                    Context.Database.CreateExecutionStrategy().ExecuteAsync(
+                        async (token) =>
+                        {
+                            await using var transaction = await Context.Database.BeginTransactionAsync(
+                                isolationLevel,
+                                token
+                            );
 
-                    var result = await action().ConfigureAwait(false);
-                    await Context.SaveChangesAsync(ct);
-                    await transaction.CommitAsync(ct);
-                    return result;
-                },
+                            var result = await action().ConfigureAwait(false);
+                            await Context.SaveChangesAsync(token);
+                            await transaction.CommitAsync(token);
+                            return result;
+                        },
+                        ct
+                    ),
                 ct
             )
             .ConfigureAwait(false);
