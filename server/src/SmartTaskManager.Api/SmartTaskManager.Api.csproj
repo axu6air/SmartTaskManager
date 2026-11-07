@@ -13,7 +13,6 @@
     <PackageReference Include="Serilog.AspNetCore" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Endpoints\Auth\" />
     <Folder Include="Endpoints\Tasks\" />
     <Folder Include="Endpoints\Projects\" />
   </ItemGroup>
