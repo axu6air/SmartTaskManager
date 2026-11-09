@@ -1,0 +1,99 @@
+<div class="signin">
+  <section class="brand-panel">
+    <div class="brand">
+      <span class="logo"><app-icon name="check" [size]="18" /></span>
+      <b>Smart Task Manager</b>
+    </div>
+    <div class="pitch">
+      <h1>Every project, every task, one place.</h1>
+      <p>Sign in to see the projects you belong to, track their tasks and keep work moving.</p>
+    </div>
+    <p class="footnote">What you can see and do depends on your role.</p>
+  </section>
+
+  <main class="form-panel">
+    <div class="form-wrap">
+      <div>
+        <h2>Sign in</h2>
+        <p class="muted">Use your work email and password.</p>
+      </div>
+
+      @if (formError(); as message) {
+        <div class="alert alert-danger" role="alert">
+          <app-icon name="alert" [size]="18" /><span>{{ message }}</span>
+        </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="stack-v">
+        <div class="field">
+          <label for="login-email">Email</label>
+          <input
+            id="login-email"
+            class="input"
+            type="email"
+            autocomplete="username"
+            placeholder="you@company.com"
+            formControlName="email"
+            [attr.aria-invalid]="form.controls.email.invalid && form.controls.email.touched"
+            aria-describedby="login-email-err"
+          />
+          @if (form.controls.email.touched && form.controls.email.errors; as e) {
+            <span id="login-email-err" class="err">
+              @if (e['required']) { Enter your email. }
+              @else if (e['email']) { Enter a valid email address, like name&#64;company.com. }
+              @else if (e['server']) { {{ e['server'] }} }
+              @else { Email is too long. }
+            </span>
+          }
+        </div>
+
+        <div class="field">
+          <label for="login-password">Password</label>
+          <div class="pw-wrap" [attr.data-invalid]="form.controls.password.invalid && form.controls.password.touched">
+            <input
+              id="login-password"
+              [type]="showPassword() ? 'text' : 'password'"
+              autocomplete="current-password"
+              placeholder="Your password"
+              formControlName="password"
+              aria-describedby="login-password-err"
+            />
+            <button type="button" class="pw-toggle" (click)="showPassword.set(!showPassword())" [attr.aria-pressed]="showPassword()" aria-controls="login-password">
+              {{ showPassword() ? 'Hide' : 'Show' }}
+            </button>
+          </div>
+          @if (form.controls.password.touched && form.controls.password.errors; as e) {
+            <span id="login-password-err" class="err">
+              @if (e['required']) { Enter your password. }
+              @else if (e['server']) { {{ e['server'] }} }
+              @else { Password is too long. }
+            </span>
+          }
+        </div>
+
+        <button type="submit" class="btn btn-primary submit" [disabled]="pending()">
+          @if (pending()) {
+            <span class="spin"></span> Signing in…
+          } @else {
+            Sign in
+          }
+        </button>
+      </form>
+
+      @if (demoAccounts.length > 0) {
+        <section class="demo" aria-labelledby="demo-title">
+          <span id="demo-title" class="demo-title">
+            Demo accounts <span class="hint">· development only · password {{ demoPassword }}</span>
+          </span>
+          <div class="demo-grid">
+            @for (account of demoAccounts; track account.email) {
+              <button type="button" class="demo-btn" (click)="fillDemo(account)">
+                <b>{{ account.name }}</b><small>{{ account.role }}</small>
+              </button>
+            }
+          </div>
+        </section>
+      }
+    </div>
+  </main>
+</div>

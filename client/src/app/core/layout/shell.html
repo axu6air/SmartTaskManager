@@ -1,0 +1,71 @@
+<a class="skip-link" href="#main">Skip to content</a>
+
+@if (loading.isLoading()) {
+  <div class="progress" role="progressbar" aria-label="Loading"></div>
+}
+
+<header class="topbar">
+  <button type="button" class="icon-btn" (click)="menuOpen.set(true)" aria-label="Open menu" [attr.aria-expanded]="menuOpen()" aria-controls="sidebar">
+    <app-icon name="menu" [size]="22" />
+  </button>
+  <span class="brand-mini"><span class="logo"><app-icon name="check" [size]="18" /></span><b>Smart Task</b></span>
+  <app-avatar [name]="me()?.fullName" [size]="32" />
+</header>
+
+@if (menuOpen()) {
+  <div class="scrim" (click)="menuOpen.set(false)" aria-hidden="true"></div>
+}
+
+<div class="shell">
+  <aside
+    id="sidebar"
+    class="side"
+    [class.open]="menuOpen()"
+    aria-label="Sidebar"
+    [cdkTrapFocus]="menuOpen()"
+    [cdkTrapFocusAutoCapture]="true"
+  >
+    <div class="spread">
+      <div class="brand">
+        <span class="logo"><app-icon name="check" [size]="18" /></span>
+        <span><b>Smart Task</b><small>Manager</small></span>
+      </div>
+      <button type="button" class="icon-btn close-menu" (click)="menuOpen.set(false)" aria-label="Close menu">
+        <app-icon name="close" [size]="20" />
+      </button>
+    </div>
+
+    <nav class="nav" aria-label="Main">
+      @for (item of nav(); track item.path) {
+        <a [routerLink]="item.path" routerLinkActive="active" ariaCurrentWhenActive="page">
+          <span class="nav-label"><app-icon [name]="item.icon" [size]="18" />{{ item.label }}</span>
+          @if (item.count > 0) {
+            <span class="badge num">{{ item.count }}</span>
+          }
+        </a>
+      }
+    </nav>
+
+    <div class="me">
+      <div class="me-row">
+        <app-avatar [name]="me()?.fullName" [size]="36" />
+        <span class="me-text">
+          <b>{{ me()?.fullName }}</b>
+          <small>{{ roleLabel() }}</small>
+        </span>
+      </div>
+      <div class="me-actions">
+        <button type="button" class="btn btn-sm" (click)="signOut()" [disabled]="signingOut()">
+          <app-icon name="logout" /> Sign out
+        </button>
+        <button type="button" class="icon-btn" (click)="cycleTheme()" [attr.aria-label]="themeLabel() + '. Change theme'" [title]="themeLabel()">
+          <app-icon [name]="themeIcon()" [size]="18" />
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main" tabindex="-1">
+    <router-outlet />
+  </main>
+</div>

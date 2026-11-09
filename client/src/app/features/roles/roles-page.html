@@ -1,0 +1,95 @@
+<div class="page">
+  <header class="page-head">
+    <div>
+      <h1>Roles &amp; permissions</h1>
+      <p>Dynamic, permission-based access. Changes apply to everyone with that role straight away.</p>
+    </div>
+  </header>
+
+  @if (!canManage()) {
+    <div class="alert alert-warn">
+      <app-icon name="lock" [size]="18" />
+      <span>Read only. Your role doesn’t include “Manage Roles”.</span>
+    </div>
+  }
+
+  @switch (store.status()) {
+    @case ('error') {
+      <app-load-error [message]="store.error() ?? ''" (retry)="store.load()" />
+    }
+    @case ('loaded') {
+      <div class="card matrix">
+        <table>
+          <caption class="sr-only">Permissions granted to each role</caption>
+          <thead>
+            <tr>
+              <th scope="col" class="label">Permission</th>
+              @for (role of roles(); track role.id) {
+                <th scope="col" class="label role-col">
+                  {{ role.name }}
+                  @if (myRoles().has(role.name)) {
+                    <span class="you">(you)</span>
+                  }
+                  @if (role.isSystem) {
+                    <span class="locked" title="System roles always keep every permission"><app-icon name="lock" [size]="12" /> System</span>
+                  }
+                </th>
+              }
+            </tr>
+          </thead>
+          @for (module of rows(); track module.code) {
+            <tbody>
+              <tr class="group">
+                <th scope="rowgroup" [attr.colspan]="roles().length + 1">{{ module.name }}</th>
+              </tr>
+              @for (row of module.permissions; track row.permission.id) {
+                <tr>
+                  <th scope="row" class="perm">
+                    <span>{{ row.permission.name }}</span>
+                    <code>{{ row.permission.code }}</code>
+                  </th>
+                  @for (cell of row.cells; track cell.role.id) {
+                    <td>
+                      @if (row.permission.isScopable) {
+                        <select
+                          class="input scope"
+                          [class.granted]="cell.scope !== 0"
+                          [disabled]="!canManage() || cell.role.isSystem"
+                          [attr.aria-label]="row.permission.name + ' for ' + cell.role.name"
+                          (change)="choose(cell, row.permission, $event)"
+                        >
+                          @for (option of cell.options; track option.value) {
+                            <option [value]="option.value" [selected]="option.value === cell.scope">{{ option.label }}</option>
+                          }
+                        </select>
+                      } @else {
+                        <button
+                          type="button"
+                          class="check"
+                          [attr.aria-pressed]="cell.scope !== 0"
+                          [attr.aria-label]="row.permission.name + ' for ' + cell.role.name"
+                          [disabled]="!canManage() || cell.role.isSystem"
+                          (click)="toggle(cell, row.permission)"
+                        >
+                          <i>@if (cell.scope !== 0) { <app-icon name="tick" [size]="14" /> }</i>
+                        </button>
+                      }
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+          }
+        </table>
+      </div>
+      <p class="hint">
+        Scopes limit where a permission applies: <b>Assigned</b> to tasks assigned to the user, <b>Managed</b> to projects
+        they manage, <b>Member</b> to projects they belong to, <b>All</b> everywhere. System roles are locked so nobody can
+        lock the workspace out of role management.
+      </p>
+    }
+    @default {
+      <span class="skeleton sk-matrix" aria-busy="true" aria-label="Loading roles"></span>
+    }
+  }
+</div>

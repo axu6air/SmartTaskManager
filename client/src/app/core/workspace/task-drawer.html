@@ -1,0 +1,67 @@
+@if (view(); as v) {
+  <aside class="drawer" aria-labelledby="drawer-title">
+    <header class="drawer-head">
+      <span>{{ v.projectName }} · Task</span>
+      <button type="button" class="icon-btn" (click)="close()" aria-label="Close task details">
+        <app-icon name="close" [size]="20" />
+      </button>
+    </header>
+
+    <div class="drawer-body">
+      <section class="stack">
+        <h2 id="drawer-title" [class.done]="v.closed">{{ v.task.title }}</h2>
+        <div class="meta">
+          <span class="pill p-{{ v.task.priority }}">{{ priorityLabel[v.task.priority] }} priority</span>
+          <span class="who">
+            <app-avatar [name]="v.assigneeName" [size]="24" />
+            <span>{{ v.assigneeName ?? 'Unassigned' }}</span>
+          </span>
+          <span class="due" [class.overdue]="v.due.tone === 'overdue'" [class.today]="v.due.tone === 'today'">
+            {{ v.due.label }}
+          </span>
+        </div>
+        @if (v.task.completedAt) {
+          <span class="hint">Completed {{ v.task.completedAt | offsetDate }}</span>
+        }
+      </section>
+
+      <section class="stack">
+        <span class="section-label" id="status-label">Status</span>
+        <div class="status-grid" role="group" aria-labelledby="status-label">
+          @for (s of statuses; track s.id) {
+            <button
+              type="button"
+              [attr.aria-pressed]="v.task.status === s.id"
+              [disabled]="!v.canChangeStatus || v.task.status === s.id"
+              (click)="setStatus(s.id)"
+            >
+              <i class="dot s-{{ s.id }}"></i>{{ s.label }}
+            </button>
+          }
+        </div>
+        @if (!v.canChangeStatus) {
+          <!-- Shown disabled rather than hidden: the current status is information everyone needs. -->
+          <span class="hint">You can’t change the status of this task.</span>
+        }
+      </section>
+
+      <section class="stack">
+        <span class="section-label">Description</span>
+        <p class="desc" [class.empty]="!v.task.description">{{ v.task.description || 'No description yet.' }}</p>
+      </section>
+
+      @if (v.canEdit || v.canAssign || v.canDelete) {
+        <footer class="drawer-foot">
+          @if (v.canEdit || v.canAssign) {
+            <button type="button" class="btn btn-sm" (click)="edit()"><app-icon name="edit" /> Edit task</button>
+          }
+          @if (v.canDelete) {
+            <button type="button" class="btn btn-sm btn-danger" (click)="remove()">
+              <app-icon name="trash" /> Delete task
+            </button>
+          }
+        </footer>
+      }
+    </div>
+  </aside>
+}

@@ -1,0 +1,121 @@
+<form class="modal" [formGroup]="form" (ngSubmit)="submit()" novalidate aria-labelledby="task-form-title">
+  <div class="spread">
+    <h2 id="task-form-title">{{ isEdit ? 'Edit task' : 'New task' }}</h2>
+    <button type="button" class="icon-btn" (click)="requestClose()" aria-label="Close">
+      <app-icon name="close" [size]="20" />
+    </button>
+  </div>
+
+  @if (formError(); as message) {
+    <div class="alert alert-danger" role="alert"><app-icon name="alert" [size]="18" /><span>{{ message }}</span></div>
+  }
+
+  <div class="field">
+    <label for="tf-title">Title</label>
+    <input
+      id="tf-title"
+      class="input"
+      type="text"
+      formControlName="title"
+      placeholder="e.g. Add refresh-token rotation"
+      cdkFocusInitial
+      [attr.aria-invalid]="form.controls.title.invalid && form.controls.title.touched"
+      aria-describedby="tf-title-err"
+    />
+    @if (form.controls.title.touched && form.controls.title.errors; as e) {
+      <span id="tf-title-err" class="err">
+        @if (e['required']) { Enter a title. }
+        @else if (e['maxlength']) { Keep the title under 200 characters. }
+        @else if (e['server']) { {{ e['server'] }} }
+      </span>
+    }
+  </div>
+
+  <div class="field">
+    <label for="tf-desc">Description <span class="hint">Optional</span></label>
+    <textarea id="tf-desc" class="input" rows="4" formControlName="description"></textarea>
+    @if (form.controls.description.touched && form.controls.description.errors; as e) {
+      <span class="err">
+        @if (e['maxlength']) { Keep the description under 4,000 characters. }
+        @else if (e['server']) { {{ e['server'] }} }
+      </span>
+    }
+  </div>
+
+  <div class="two">
+    @if (!isEdit) {
+      <div class="field">
+        <label for="tf-project">Project</label>
+        <select id="tf-project" class="input" formControlName="projectId">
+          @for (project of data.projects; track project.id) {
+            <option [value]="project.id">{{ project.name }}</option>
+          }
+        </select>
+      </div>
+    }
+    @if (showAssignee) {
+      <div class="field">
+        <label for="tf-assignee">Assignee</label>
+        <select id="tf-assignee" class="input" formControlName="assigneeId">
+          <option value="">Unassigned</option>
+          @for (member of members(); track member.userId) {
+            <option [value]="member.userId">{{ member.fullName }}</option>
+          }
+        </select>
+        @if (form.controls.assigneeId.errors?.['server']; as message) {
+          <span class="err">{{ message }}</span>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="field">
+    <span class="field-label" id="tf-priority-label">Priority</span>
+    <div class="segmented" role="group" aria-labelledby="tf-priority-label">
+      @for (p of priorities; track p.id) {
+        <button type="button" [attr.aria-pressed]="form.controls.priority.value === p.id" (click)="setPriority(p.id)">
+          {{ p.label }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <div class="two">
+    <div class="field">
+      <label for="tf-due">Due date <span class="hint">Optional</span></label>
+      <input
+        id="tf-due"
+        class="input"
+        type="date"
+        formControlName="dueDate"
+        [attr.min]="isEdit ? null : today"
+        [attr.aria-invalid]="form.controls.dueDate.invalid && form.controls.dueDate.touched"
+      />
+      @if (form.controls.dueDate.touched && form.controls.dueDate.errors; as e) {
+        <span class="err">
+          @if (e['past']) { The due date can’t be in the past. }
+          @else if (e['server']) { {{ e['server'] }} }
+        </span>
+      }
+    </div>
+  </div>
+
+  @if (confirmingDiscard()) {
+    <div class="alert alert-warn" role="alert">
+      <span style="flex: 1">Discard your unsaved changes?</span>
+      <button type="button" class="btn btn-sm" (click)="confirmingDiscard.set(false)">Keep editing</button>
+      <button type="button" class="btn btn-sm btn-danger" (click)="discard()">Discard</button>
+    </div>
+  } @else {
+    <div class="modal-actions">
+      <button type="button" class="btn" (click)="requestClose()">Cancel</button>
+      <button type="submit" class="btn btn-primary" [disabled]="pending()">
+        @if (pending()) {
+          <span class="spin"></span> Saving…
+        } @else {
+          {{ isEdit ? 'Save changes' : 'Create task' }}
+        }
+      </button>
+    </div>
+  }
+</form>

@@ -1,0 +1,73 @@
+<div class="page">
+  <header class="page-head">
+    <div>
+      <h1>Task board</h1>
+      <p>Drag a card to change its status, or open it for details.</p>
+    </div>
+    <div class="actions">
+      <label class="search">
+        <app-icon name="search" />
+        <span class="sr-only">Search tasks</span>
+        <input type="search" placeholder="Search tasks" [value]="search()" (input)="onSearch($event)" />
+      </label>
+      <ng-container *appHasPermission="perms.Tasks.Create">
+        <button type="button" class="btn btn-primary" (click)="actions.openCreate(projectFilter())" [disabled]="views.creatableProjects().length === 0">
+          <app-icon name="plus" /> New task
+        </button>
+      </ng-container>
+    </div>
+  </header>
+
+  @switch (store.status()) {
+    @case ('error') {
+      <app-load-error [message]="store.error() ?? ''" (retry)="actions.reloadWorkspace()" />
+    }
+    @case ('loaded') {
+      <div class="toolbar" role="toolbar" aria-label="Filter board">
+        <button type="button" class="chip" [attr.aria-pressed]="projectFilter() === ''" (click)="setProject('')">All projects</button>
+        @for (p of store.projects(); track p.id) {
+          <button type="button" class="chip" [attr.aria-pressed]="projectFilter() === p.id" (click)="setProject(p.id)">{{ p.name }}</button>
+        }
+        <span class="vsep" aria-hidden="true"></span>
+        <button type="button" class="chip" [attr.aria-pressed]="mineOnly()" (click)="toggleMine()">Only my tasks</button>
+      </div>
+
+      <div class="board-scroll">
+        <div class="board" cdkDropListGroup>
+          @for (col of columns(); track col.id) {
+            <section
+              class="col"
+              [attr.aria-label]="col.label + ', ' + col.tasks.length + ' tasks'"
+              cdkDropList
+              [cdkDropListData]="col.id"
+              (cdkDropListDropped)="drop($event)"
+            >
+              <header class="col-head">
+                <span class="st"><i class="dot s-{{ col.id }}"></i>{{ col.label }}</span>
+                <span class="n num">{{ col.tasks.length }}</span>
+              </header>
+              @for (v of col.tasks; track v.task.id) {
+                <app-task-card
+                  cdkDrag
+                  [cdkDragData]="v"
+                  [cdkDragDisabled]="!v.canChangeStatus"
+                  [view]="v"
+                  (open)="actions.openDetails(v.task.id)"
+                />
+              } @empty {
+                <p class="col-empty">No tasks here</p>
+              }
+            </section>
+          }
+        </div>
+      </div>
+    }
+    @default {
+      <div class="board" aria-busy="true" aria-label="Loading board">
+        @for (i of [1, 2, 3, 4]; track i) {
+          <div class="col"><span class="skeleton sk-card"></span><span class="skeleton sk-card"></span></div>
+        }
+      </div>
+    }
+  }
+</div>

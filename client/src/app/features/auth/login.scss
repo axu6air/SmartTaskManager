@@ -1,0 +1,117 @@
+.signin {
+  min-height: 100vh;
+  display: flex;
+  flex-wrap: wrap;
+}
+.brand-panel {
+  flex: 1 1 380px;
+  background: var(--panel);
+  color: var(--panel-fg);
+  padding-block: 48px;
+  padding-left: max(var(--space-6), env(safe-area-inset-left, 0px));
+  padding-right: var(--space-10);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-10);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 18px;
+}
+.pitch {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+h1 {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 4vw, 44px);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  max-width: 14ch;
+}
+.pitch p {
+  color: var(--panel-muted);
+  font-size: 16px;
+  line-height: 1.6;
+  max-width: 42ch;
+}
+.footnote {
+  color: var(--panel-muted);
+  font-size: 13px;
+}
+.form-panel {
+  flex: 999 1 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-block: 48px;
+  padding-inline: max(var(--space-4), env(safe-area-inset-left, 0px));
+}
+.form-wrap {
+  width: 420px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+h2 {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.submit {
+  height: 46px;
+  font-size: 15px;
+}
+.demo {
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--surface);
+}
+.demo-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg-2);
+}
+.demo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+.demo-btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 52px;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  text-align: left;
+}
+.demo-btn:hover {
+  border-color: var(--accent);
+}
+.demo-btn b {
+  font-size: 13px;
+}
+.demo-btn small {
+  font-size: 12px;
+  color: var(--muted);
+}
+@media (max-width: 480px) {
+  .demo-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

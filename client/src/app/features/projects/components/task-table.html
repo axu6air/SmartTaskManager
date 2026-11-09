@@ -1,0 +1,30 @@
+<div class="card list">
+  <div class="list-inner" role="table" aria-label="Tasks">
+    <div class="row row-head label" role="row">
+      <span role="columnheader">Task</span>
+      <span role="columnheader">Status</span>
+      <span role="columnheader">Priority</span>
+      <span role="columnheader">Assignee</span>
+      <span role="columnheader">Due</span>
+    </div>
+    @for (v of tasks(); track v.task.id) {
+      <button type="button" class="row" role="row" (click)="open.emit(v.task.id)" [attr.aria-label]="'Open task ' + v.task.title">
+        <span class="title-cell" role="cell">
+          <span class="t" [class.done]="v.closed">{{ v.task.title }}</span>
+          <span class="snip">{{ v.task.description || 'No description yet' }}</span>
+        </span>
+        <span class="st" role="cell"><i class="dot s-{{ v.task.status }}"></i>{{ statusLabel[v.task.status] }}</span>
+        <span role="cell"><span class="pill p-{{ v.task.priority }}">{{ priorityLabel[v.task.priority] }}</span></span>
+        <span class="who" role="cell">
+          <app-avatar [name]="v.assigneeName" [size]="26" />
+          <span>{{ v.assigneeName ?? 'Unassigned' }}</span>
+        </span>
+        <span class="due" role="cell" [class.overdue]="v.due.tone === 'overdue'" [class.today]="v.due.tone === 'today'">
+          {{ v.due.label }}
+        </span>
+      </button>
+    } @empty {
+      <p class="state">{{ emptyMessage() }}</p>
+    }
+  </div>
+</div>

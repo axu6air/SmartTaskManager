@@ -1,0 +1,86 @@
+<div class="page">
+  <header class="page-head">
+    <div>
+      <h1>Dashboard</h1>
+      <p>An overview of your projects and what needs attention.</p>
+    </div>
+  </header>
+
+  @switch (store.status()) {
+    @case ('error') {
+      <app-load-error [message]="store.error() ?? ''" (retry)="actions.reloadWorkspace()" />
+    }
+    @case ('loaded') {
+      @let s = summary();
+      <div class="stats">
+        <div class="card stat"><span>Total tasks</span><b class="num">{{ s.total }}</b><span>Across {{ store.projects().length }} projects</span></div>
+        <div class="card stat"><span>In progress</span><b class="num">{{ s.inProgress }}</b><span>{{ s.toDo }} still to do</span></div>
+        <div class="card stat ok"><span>Completed</span><b class="num">{{ s.completed }}</b><span>{{ s.completedPercent }}% of active tasks</span></div>
+        <div class="card stat" [class.danger]="s.overdue > 0">
+          <span>Overdue</span><b class="num">{{ s.overdue }}</b>
+          <span>{{ s.overdue > 0 ? 'Past due and still open' : 'Everything on schedule' }}</span>
+        </div>
+        <div class="card stat"><span>Assigned to you</span><b class="num">{{ s.mineOpen }}</b><span>Open tasks</span></div>
+      </div>
+
+      @defer (on viewport) {
+        <div class="panels">
+          <section class="card panel" aria-labelledby="by-status">
+            <h2 id="by-status">Tasks by status</h2>
+            @for (row of byStatus(); track row.id) {
+              <div class="metric">
+                <div class="spread">
+                  <span class="st"><i class="dot s-{{ row.id }}"></i>{{ row.label }}</span>
+                  <span class="num muted">{{ row.count }} · {{ row.percent }}%</span>
+                </div>
+                <div class="bar" role="img" [attr.aria-label]="row.label + ': ' + row.percent + '%'">
+                  <i class="s-{{ row.id }}" [style.width.%]="row.percent"></i>
+                </div>
+              </div>
+            }
+          </section>
+
+          <section class="card panel" aria-labelledby="upcoming">
+            <h2 id="upcoming">Upcoming deadlines</h2>
+            @for (v of upcoming(); track v.task.id) {
+              <button type="button" class="up" (click)="actions.openDetails(v.task.id)">
+                <span class="up-text">
+                  <b>{{ v.task.title }}</b>
+                  <small>{{ v.projectName }} · {{ v.assigneeName ?? 'Unassigned' }}</small>
+                </span>
+                <span class="due" [class.overdue]="v.due.tone === 'overdue'" [class.today]="v.due.tone === 'today'">{{ v.due.label }}</span>
+              </button>
+            } @empty {
+              <p class="muted">No open tasks with a due date. Nice work.</p>
+            }
+          </section>
+
+          <section class="card panel" aria-labelledby="progress">
+            <h2 id="progress">Project progress</h2>
+            @for (p of projectProgress(); track p.id) {
+              <a class="metric project-link" [routerLink]="['/projects', p.id]">
+                <div class="spread">
+                  <span class="name">{{ p.name }}</span>
+                  <span class="num muted">{{ p.done }}/{{ p.total }} done</span>
+                </div>
+                <div class="bar"><i [style.width.%]="p.percent"></i></div>
+              </a>
+            } @empty {
+              <p class="muted">No projects yet.</p>
+            }
+          </section>
+        </div>
+      } @placeholder {
+        <span class="skeleton sk-panels"></span>
+      }
+    }
+    @default {
+      <div class="stats" aria-busy="true" aria-label="Loading dashboard">
+        @for (i of [1, 2, 3, 4, 5]; track i) {
+          <span class="skeleton sk-stat"></span>
+        }
+      </div>
+      <span class="skeleton sk-panels"></span>
+    }
+  }
+</div>

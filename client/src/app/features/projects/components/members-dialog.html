@@ -1,0 +1,89 @@
+<section class="modal" aria-labelledby="members-title">
+  <div class="spread">
+    <div>
+      <h2 id="members-title">Members</h2>
+      <p class="hint">{{ project.name }} · {{ members().length }} {{ members().length === 1 ? 'person' : 'people' }}</p>
+    </div>
+    <button type="button" class="icon-btn" (click)="ref.close()" aria-label="Close" cdkFocusInitial>
+      <app-icon name="close" [size]="20" />
+    </button>
+  </div>
+
+  <ul class="people" aria-label="Current members">
+    @for (m of members(); track m.userId) {
+      <li class="person">
+        <app-avatar [name]="m.fullName" [size]="34" />
+        <span class="who-text">
+          <b>{{ m.fullName }} @if (m.userId === me()) { <span class="hint">(you)</span> }</b>
+          <small>{{ m.email }}</small>
+        </span>
+        <select
+          class="input role"
+          [attr.aria-label]="'Role of ' + m.fullName"
+          [disabled]="busy() !== null || isLastManager(m)"
+          [title]="isLastManager(m) ? 'A project needs at least one manager' : ''"
+          (change)="setRole(m, $event)"
+        >
+          <option value="manager" [selected]="m.isManager">Manager</option>
+          <option value="member" [selected]="!m.isManager">Member</option>
+        </select>
+        <button
+          type="button"
+          class="icon-btn danger"
+          [attr.aria-label]="'Remove ' + m.fullName"
+          [title]="isLastManager(m) ? 'A project needs at least one manager' : 'Remove from project'"
+          [disabled]="busy() !== null || isLastManager(m)"
+          (click)="confirmingRemove.set(m)"
+        >
+          @if (busy() === m.userId) { <span class="spin"></span> } @else { <app-icon name="trash" /> }
+        </button>
+      </li>
+    }
+  </ul>
+
+  @if (confirmingRemove(); as m) {
+    <div class="alert alert-warn" role="alert">
+      <span class="grow">
+        Remove {{ m.fullName }} from this project?
+        @if (assignedCount() > 0) {
+          Their {{ assignedCount() }} assigned {{ assignedCount() === 1 ? 'task' : 'tasks' }} will become unassigned.
+        }
+      </span>
+      <button type="button" class="btn btn-sm" (click)="confirmingRemove.set(null)">Keep</button>
+      <button type="button" class="btn btn-sm btn-danger-solid" (click)="remove(m)">Remove</button>
+    </div>
+  }
+
+  <div class="add">
+    <span class="field-label" id="add-label">Add people</span>
+    @if (canSearch()) {
+      <label class="search wide">
+        <app-icon name="search" />
+        <span class="sr-only">Search users by name or email</span>
+        <input type="search" placeholder="Search by name or email" [value]="query()" (input)="onSearch($event)" aria-describedby="add-label" />
+      </label>
+      <ul class="people results" aria-label="Search results" aria-live="polite">
+        @if (searching()) {
+          <li class="hint">Searching…</li>
+        } @else if (searchFailed()) {
+          <li class="err">Couldn’t search users. Try again.</li>
+        } @else {
+          @for (u of candidates(); track u.id) {
+            <li class="person">
+              <app-avatar [name]="u.fullName" [size]="30" />
+              <span class="who-text"><b>{{ u.fullName }}</b><small>{{ u.email }}</small></span>
+              <button type="button" class="btn btn-sm" [disabled]="busy() !== null" (click)="add(u)">
+                @if (busy() === u.id) { <span class="spin"></span> } @else { <app-icon name="plus" /> } Add
+              </button>
+            </li>
+          } @empty {
+            <li class="hint">{{ query().trim() ? 'No one else matches “' + query().trim() + '”.' : 'Everyone is already a member.' }}</li>
+          }
+        }
+      </ul>
+    } @else {
+      <!-- Visible rather than hidden: managers should know why they can only edit existing members. -->
+      <p class="hint">Your role can’t look up users, so you can change roles and remove people but not add new ones.</p>
+    }
+  </div>
+</section>

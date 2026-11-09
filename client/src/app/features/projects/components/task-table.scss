@@ -1,0 +1,54 @@
+.list {
+  overflow-x: auto;
+}
+.list-inner {
+  min-width: 700px;
+}
+.row {
+  display: grid;
+  grid-template-columns: minmax(240px, 3fr) minmax(120px, 1fr) minmax(90px, 0.8fr) minmax(160px, 1.2fr) minmax(130px, 1fr);
+  gap: var(--space-3);
+  align-items: center;
+  padding: 10px var(--space-5);
+}
+.row-head {
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding-block: var(--space-3);
+}
+button.row {
+  width: 100%;
+  min-height: 62px;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+  text-align: left;
+}
+button.row:hover {
+  background: var(--surface-2);
+}
+button.row:last-child {
+  border-bottom: none;
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+.title-cell {
+  min-width: 0;
+}
+.t {
+  font-weight: 600;
+  color: var(--fg);
+  display: block;
+}
+.t.done {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+.snip {
+  font-size: 12px;
+  color: var(--muted);
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

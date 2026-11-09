@@ -1,0 +1,90 @@
+<form class="modal" [formGroup]="form" (ngSubmit)="submit()" novalidate aria-labelledby="project-form-title">
+  <div class="spread">
+    <h2 id="project-form-title">{{ project ? 'Edit project' : 'New project' }}</h2>
+    <button type="button" class="icon-btn" (click)="requestClose()" aria-label="Close">
+      <app-icon name="close" [size]="20" />
+    </button>
+  </div>
+
+  @if (formError(); as message) {
+    <div class="alert alert-danger" role="alert"><app-icon name="alert" [size]="18" /><span>{{ message }}</span></div>
+  }
+
+  <div class="field">
+    <label for="pf-name">Name</label>
+    <input
+      id="pf-name"
+      class="input"
+      type="text"
+      formControlName="name"
+      placeholder="e.g. Website redesign"
+      cdkFocusInitial
+      [attr.aria-invalid]="form.controls.name.invalid && form.controls.name.touched"
+      aria-describedby="pf-name-err"
+    />
+    @if (form.controls.name.touched && form.controls.name.errors; as e) {
+      <span id="pf-name-err" class="err">
+        @if (e['required']) { Enter a project name. }
+        @else if (e['maxlength']) { Keep the name under 200 characters. }
+        @else if (e['server']) { {{ e['server'] }} }
+      </span>
+    }
+  </div>
+
+  <div class="field">
+    <label for="pf-desc">Description <span class="hint">Optional</span></label>
+    <textarea id="pf-desc" class="input" rows="3" formControlName="description"></textarea>
+    @if (form.controls.description.touched && form.controls.description.errors; as e) {
+      <span class="err">
+        @if (e['maxlength']) { Keep the description under 2,000 characters. }
+        @else if (e['server']) { {{ e['server'] }} }
+      </span>
+    }
+  </div>
+
+  <div class="two">
+    <div class="field">
+      <label for="pf-start">Start date <span class="hint">Optional</span></label>
+      <input id="pf-start" class="input" type="date" formControlName="startDate" />
+    </div>
+    <div class="field">
+      <label for="pf-end">End date <span class="hint">Optional</span></label>
+      <input
+        id="pf-end"
+        class="input"
+        type="date"
+        formControlName="endDate"
+        [attr.min]="form.controls.startDate.value || null"
+        [attr.aria-invalid]="form.hasError('endBeforeStart') && form.controls.endDate.touched"
+      />
+      @if (form.controls.endDate.touched && form.hasError('endBeforeStart')) {
+        <span class="err">The end date can’t be before the start date.</span>
+      } @else if (form.controls.endDate.errors?.['server']; as message) {
+        <span class="err">{{ message }}</span>
+      }
+    </div>
+  </div>
+
+  @if (!project) {
+    <p class="hint">You’ll be the project’s first manager.</p>
+  }
+
+  @if (confirmingDiscard()) {
+    <div class="alert alert-warn" role="alert">
+      <span class="grow">Discard your unsaved changes?</span>
+      <button type="button" class="btn btn-sm" (click)="confirmingDiscard.set(false)">Keep editing</button>
+      <button type="button" class="btn btn-sm btn-danger" (click)="discard()">Discard</button>
+    </div>
+  } @else {
+    <div class="modal-actions">
+      <button type="button" class="btn" (click)="requestClose()">Cancel</button>
+      <button type="submit" class="btn btn-primary" [disabled]="pending()">
+        @if (pending()) {
+          <span class="spin"></span> Saving…
+        } @else {
+          {{ project ? 'Save changes' : 'Create project' }}
+        }
+      </button>
+    </div>
+  }
+</form>
