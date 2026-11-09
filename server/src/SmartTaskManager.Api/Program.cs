@@ -13,6 +13,7 @@ builder
     .Services.AddRequestContext()
     .AddApplication()
     .AddInfrastructure()
+    .AddExceptionHandling()
     .AddJwtAuthentication()
     .AddValidators();
 
@@ -25,7 +26,7 @@ if (app.Environment.IsDevelopment())
 
 // Configure the HTTP request pipeline.
 
-app.UseHttpsRedirection().UseAuthentication().UseRequestLogging().UseEndpointAuthorization();
+app.UseExceptionHandler().UseHttpsRedirection().UseAuthentication().UseRequestLogging().UseEndpointAuthorization();
 app.MapEndpoints();
 
 await app.RunAsync();

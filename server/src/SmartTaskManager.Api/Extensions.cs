@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using SmartTaskManager.Api.Authentication;
+using SmartTaskManager.Api.ExceptionHandling;
 using SmartTaskManager.Application.Common.Abstractions;
 using SmartTaskManager.Infrastructure.Security;
 
@@ -53,6 +54,18 @@ public static class ApiExtensions
         }
 
         return null;
+    }
+
+    public static IServiceCollection AddExceptionHandling(this IServiceCollection services)
+    {
+        // Handlers run in registration order, so the specific ones come before the catch-all.
+        services.AddExceptionHandler<CancellationExceptionHandler>();
+        services.AddExceptionHandler<InvalidOperationExceptionHandler>();
+        services.AddExceptionHandler<RepositoryExceptionHandler>();
+        services.AddExceptionHandler<GlobalExceptionHandler>();
+        services.AddProblemDetails();
+
+        return services;
     }
 
     public static IServiceCollection AddRequestContext(this IServiceCollection services)
