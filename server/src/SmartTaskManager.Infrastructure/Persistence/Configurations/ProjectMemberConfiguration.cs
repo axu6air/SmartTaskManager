@@ -15,6 +15,9 @@ internal sealed class ProjectMemberConfiguration : IEntityTypeConfiguration<Proj
 
         builder.Property(m => m.IsManager).IsRequired();
 
+        // Matches the Project filter, so a deleted project's members are hidden with it.
+        builder.HasQueryFilter(m => !m.Project.IsDeleted);
+
         builder
             .HasOne(m => m.Project)
             .WithMany(p => p.Members)

@@ -45,7 +45,8 @@ internal sealed class ProjectTaskConfiguration : IEntityTypeConfiguration<Projec
             .HasConstraintName("FK_ProjectTasks_DeletedBy")
             .OnDelete(DeleteBehavior.NoAction);
 
-        builder.HasQueryFilter(t => !t.IsDeleted);
+        // Matches the Project filter, because every task belongs to a project.
+        builder.HasQueryFilter(t => !t.IsDeleted && !t.Project.IsDeleted);
 
         // Project task lists and dashboard counts by status and priority.
         builder

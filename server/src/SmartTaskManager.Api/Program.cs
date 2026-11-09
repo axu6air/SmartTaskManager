@@ -2,6 +2,7 @@ using SmartTaskManager.Api;
 using SmartTaskManager.Api.Authentication;
 using SmartTaskManager.Api.Authorization;
 using SmartTaskManager.Api.Endpoints;
+using SmartTaskManager.Api.Middleware;
 using SmartTaskManager.Application;
 using SmartTaskManager.Infrastructure;
 using SmartTaskManager.Infrastructure.Persistence.Initialization;
@@ -26,10 +27,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
+app.UseRequestLogging();
 app.UseEndpointAuthorization();
 
 app.MapAuthEndpoints();
 app.MapProjectEndpoints();
 app.MapTaskEndpoints();
+app.MapRoleEndpoints();
+app.MapUserEndpoints();
 
 await app.RunAsync();

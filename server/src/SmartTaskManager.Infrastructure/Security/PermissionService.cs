@@ -11,10 +11,8 @@ internal sealed class PermissionService(ApplicationDbContext context) : IPermiss
 {
     public async Task<PermissionScopes?> GetScopesAsync(Guid userId, string permissionCode, CancellationToken ct)
     {
-        var grants = await context.RolePermissions
-            .AsNoTracking()
-            .Where(rp => rp.Permission.Code == permissionCode
-                && context.UserRoles.Any(ur => ur.UserId == userId && ur.RoleId == rp.RoleId && ur.User.IsActive))
+        var grants = await GrantsOf(userId)
+            .Where(rp => rp.Permission.Code == permissionCode)
             .Select(rp => rp.Scope)
             .ToListAsync(ct);
 
@@ -25,4 +23,21 @@ internal sealed class PermissionService(ApplicationDbContext context) : IPermiss
 
         return grants.Aggregate((combined, scope) => combined | scope);
     }
+
+    public async Task<IReadOnlyDictionary<string, PermissionScopes>> GetAllScopesAsync(Guid userId, CancellationToken ct)
+    {
+        var grants = await GrantsOf(userId)
+            .Select(rp => new { rp.Permission.Code, rp.Scope })
+            .ToListAsync(ct);
+
+        // Combined in memory: SQL has no portable bitwise-OR aggregate, and a user holds only a few dozen grants.
+        return grants
+            .GroupBy(g => g.Code)
+            .ToDictionary(g => g.Key, g => g.Select(x => x.Scope).Aggregate((combined, scope) => combined | scope));
+    }
+
+    private IQueryable<RolePermission> GrantsOf(Guid userId) =>
+        context.RolePermissions
+            .AsNoTracking()
+            .Where(rp => context.UserRoles.Any(ur => ur.UserId == userId && ur.RoleId == rp.RoleId && ur.User.IsActive));
 }

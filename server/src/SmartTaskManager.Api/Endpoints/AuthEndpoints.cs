@@ -9,6 +9,9 @@ public static class AuthEndpoints
         var group = app.MapGroup("/api/auth").WithTags("Auth");
 
         group.MapLogin();
+        group.MapRefreshToken();
+        group.MapLogout();
+        group.MapGetMe();
 
         return app;
     }

@@ -21,4 +21,17 @@ public class RoleRepository(ApplicationDbContext context)
             ct
         );
     }
+
+    public Task<ICollection<Role>> FindAllWithPermissionsAsync(CancellationToken ct = default)
+    {
+        return ExecuteAsync<ICollection<Role>>(
+            async (ct) =>
+                await DbSet
+                    .AsNoTracking()
+                    .Include(r => r.RolePermissions)
+                    .OrderBy(r => r.Name)
+                    .ToListAsync(ct),
+            ct
+        );
+    }
 }

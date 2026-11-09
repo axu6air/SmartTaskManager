@@ -2,6 +2,7 @@ using SmartTaskManager.Api.Endpoints.Projects.Assign;
 using SmartTaskManager.Api.Endpoints.Projects.Create;
 using SmartTaskManager.Api.Endpoints.Projects.Delete;
 using SmartTaskManager.Api.Endpoints.Projects.List;
+using SmartTaskManager.Api.Endpoints.Projects.Members;
 using SmartTaskManager.Api.Endpoints.Projects.Update;
 
 namespace SmartTaskManager.Api.Endpoints;
@@ -18,6 +19,8 @@ public static class ProjectEndpoints
         group.MapUpdateProject();
         group.MapDeleteProject();
         group.MapAssignProjectMember();
+        group.MapGetProjectMembers();
+        group.MapRemoveProjectMember();
 
         return app;
     }

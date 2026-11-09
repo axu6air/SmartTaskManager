@@ -17,6 +17,7 @@ public class UserRepository(ApplicationDbContext context)
                 DbSet
                     .AsTracking()
                     .Include(u => u.UserRoles)
+                    .ThenInclude(ur => ur.Role)
                     .FirstOrDefaultAsync(u => u.Id == id, ct),
             ct
         );

@@ -2,6 +2,7 @@ using SmartTaskManager.Api.Endpoints.Tasks.Assign;
 using SmartTaskManager.Api.Endpoints.Tasks.Create;
 using SmartTaskManager.Api.Endpoints.Tasks.Delete;
 using SmartTaskManager.Api.Endpoints.Tasks.List;
+using SmartTaskManager.Api.Endpoints.Tasks.Status;
 using SmartTaskManager.Api.Endpoints.Tasks.Update;
 
 namespace SmartTaskManager.Api.Endpoints;
@@ -18,6 +19,7 @@ public static class TaskEndpoints
         group.MapUpdateTask();
         group.MapDeleteTask();
         group.MapAssignTask();
+        group.MapChangeTaskStatus();
 
         return app;
     }
