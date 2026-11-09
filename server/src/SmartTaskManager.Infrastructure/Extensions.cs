@@ -11,11 +11,12 @@ using SmartTaskManager.Infrastructure.Security;
 
 namespace SmartTaskManager.Infrastructure;
 
-public static class DependencyInjection
+public static class Extensions
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
-        services.AddOptions<DatabaseOptions>()
+        services
+            .AddOptions<DatabaseOptions>()
             .BindConfiguration(DatabaseOptions.SectionName)
             .ValidateDataAnnotations()
             .ValidateOnStart();
@@ -24,19 +25,29 @@ public static class DependencyInjection
 
         services.AddSingleton<SlowQueryInterceptor>();
         services.AddScoped<AuditableEntityInterceptor>();
-        services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
-        {
-            var database = serviceProvider.GetRequiredService<IOptions<DatabaseOptions>>().Value;
+        services.AddDbContext<ApplicationDbContext>(
+            (serviceProvider, options) =>
+            {
+                var database = serviceProvider
+                    .GetRequiredService<IOptions<DatabaseOptions>>()
+                    .Value;
 
-            options
-                .UseSqlServer(database.ConnectionString, sql => sql.EnableRetryOnFailure(
-                    database.MaxRetryCount,
-                    TimeSpan.FromSeconds(database.MaxRetryDelaySeconds),
-                    errorNumbersToAdd: null))
-                .AddInterceptors(
-                    serviceProvider.GetRequiredService<SlowQueryInterceptor>(),
-                    serviceProvider.GetRequiredService<AuditableEntityInterceptor>());
-        });
+                options
+                    .UseSqlServer(
+                        database.ConnectionString,
+                        sql =>
+                            sql.EnableRetryOnFailure(
+                                database.MaxRetryCount,
+                                TimeSpan.FromSeconds(database.MaxRetryDelaySeconds),
+                                errorNumbersToAdd: null
+                            )
+                    )
+                    .AddInterceptors(
+                        serviceProvider.GetRequiredService<SlowQueryInterceptor>(),
+                        serviceProvider.GetRequiredService<AuditableEntityInterceptor>()
+                    );
+            }
+        );
 
         services.TryAddSingleton(TimeProvider.System);
         services.AddSingleton<IPasswordHasher, IdentityPasswordHasher>();

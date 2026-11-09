@@ -34,7 +34,7 @@ public class SqlBatchSplitterTests
     [Fact]
     public void Split_EmbeddedSchemaScript_ContainsEveryTableAndNoGoLines()
     {
-        using var stream = typeof(DependencyInjection).Assembly.GetManifestResourceStream("rbac-schema.sql");
+        using var stream = typeof(Extensions).Assembly.GetManifestResourceStream("rbac-schema.sql");
         stream.Should().NotBeNull("the schema script is embedded in the Infrastructure assembly");
         var script = new StreamReader(stream).ReadToEnd();
 

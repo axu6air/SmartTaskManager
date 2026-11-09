@@ -21,16 +21,19 @@ public sealed class RequestLoggingMiddleware(
         }
         finally
         {
-            logger.LogInformation(
-                "{Method} {Path} by {UserId} from {RemoteIp} at {RequestedAt:o} returned {StatusCode} in {ElapsedMs} ms",
-                context.Request.Method,
-                context.Request.Path.Value,
-                context.User.GetUserId()?.ToString() ?? "anonymous",
-                context.Connection.RemoteIpAddress,
-                requestedAt,
-                statusCode,
-                (long)timeProvider.GetElapsedTime(started).TotalMilliseconds
-            );
+            if (logger.IsEnabled(LogLevel.Information))
+            {
+                logger.LogInformation(
+                    "{Method} {Path} by {UserId} from {RemoteIp} at {RequestedAt:o} returned {StatusCode} in {ElapsedMs} ms",
+                    context.Request.Method,
+                    context.Request.Path.Value,
+                    context.User.GetUserId()?.ToString() ?? "anonymous",
+                    context.Connection.RemoteIpAddress,
+                    requestedAt,
+                    statusCode,
+                    (long)timeProvider.GetElapsedTime(started).TotalMilliseconds
+                );
+            }
         }
     }
 }
