@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using SmartTaskManager.Api.Authentication;
+using SmartTaskManager.Application.Common.Abstractions;
 using SmartTaskManager.Infrastructure.Security;
 
 namespace SmartTaskManager.Api;
@@ -51,5 +53,13 @@ public static class ApiExtensions
         }
 
         return null;
+    }
+
+    public static IServiceCollection AddRequestContext(this IServiceCollection services)
+    {
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUser, CurrentUser>();
+
+        return services;
     }
 }
