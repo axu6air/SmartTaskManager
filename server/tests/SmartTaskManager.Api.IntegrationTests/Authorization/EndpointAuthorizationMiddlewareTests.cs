@@ -16,6 +16,9 @@ public class EndpointAuthorizationMiddlewareTests
     {
         public Task<PermissionScopes?> GetScopesAsync(Guid userId, string permissionCode, CancellationToken ct)
             => Task.FromResult(scopes);
+
+        public Task<IReadOnlyDictionary<string, PermissionScopes>> GetAllScopesAsync(Guid userId, CancellationToken ct)
+            => throw new NotSupportedException("The middleware only checks single permissions.");
     }
 
     private static async Task<(int Status, bool NextCalled)> RunAsync(
