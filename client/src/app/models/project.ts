@@ -11,6 +11,9 @@ export interface ProjectSummary {
   isAiModified: boolean;
 }
 
+/** Whitelisted sort fields of GET /api/projects (ProjectSorts on the server). */
+export type ProjectSortField = 'name' | 'startDate' | 'endDate' | 'createdAt';
+
 /** Mirrors CreateProjectRequest. The response is a ProjectSummary plus member IDs. */
 export interface CreateProjectRequest {
   name: string;

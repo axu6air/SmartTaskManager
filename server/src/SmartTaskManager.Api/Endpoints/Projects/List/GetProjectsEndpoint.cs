@@ -19,17 +19,30 @@ public static class GetProjectsEndpoint
                     ISender sender,
                     CancellationToken ct,
                     int page = 1,
-                    int pageSize = 30
+                    int pageSize = 30,
+                    string? search = null,
+                    string? sortBy = null,
+                    string? sortDirection = null
                 ) =>
                 {
-                    var result = await sender.Send(new GetProjectsQuery(page, pageSize), ct);
+                    var result = await sender.Send(
+                        new GetProjectsQuery(page, pageSize, search, sortBy, sortDirection),
+                        ct
+                    );
                     return result.ToHttpResult(http);
                 }
             )
             .WithName("GetProjects")
-            .WithSummary("Lists the projects the user may see, one page at a time.")
+            .WithSummary(
+                "Lists the projects the user may see, one page at a time. search matches name or description; "
+                    + "sortBy is name, startDate, endDate or createdAt; sortDirection is asc or desc."
+            )
             .Produces<ApiResponse<PagedResponse<ProjectSummary>>>()
-            .ProducesErrors(StatusCodes.Status401Unauthorized, StatusCodes.Status403Forbidden)
+            .ProducesErrors(
+                StatusCodes.Status400BadRequest,
+                StatusCodes.Status401Unauthorized,
+                StatusCodes.Status403Forbidden
+            )
             .Authorize(Permissions.Projects.View);
     }
 }

@@ -66,6 +66,16 @@ export interface ProjectTask {
   isAiModified: boolean;
 }
 
+/** Whitelisted sort fields of GET /api/projects/{id}/tasks (TaskSorts on the server). dueDate puts "no date" last. */
+export type TaskSortField = 'title' | 'dueDate' | 'priority' | 'status' | 'createdAt';
+
+/** Extra filters of the task list endpoint. */
+export interface TaskListFilters {
+  status?: TaskStatus;
+  priority?: TaskPriority;
+  assigneeId?: Guid;
+}
+
 /** Mirrors CreateTaskRequest. */
 export interface CreateTaskRequest {
   title: string;

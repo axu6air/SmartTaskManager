@@ -1,0 +1,72 @@
+<div class="page">
+  <header class="page-head">
+    <div>
+      <h1>Projects</h1>
+      <p>{{ subtitle() }}</p>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn" *appHasPermission="perms.Projects.Create" (click)="createProject()">
+        <app-icon name="plus" /> New project
+      </button>
+      <button type="button" class="btn btn-primary" *appHasPermission="perms.Tasks.Create" (click)="actions.openCreate()" [disabled]="views.creatableProjects().length === 0">
+        <app-icon name="plus" /> New task
+      </button>
+    </div>
+  </header>
+
+  <div class="toolbar" role="search">
+    <label class="search">
+      <app-icon name="search" />
+      <span class="sr-only">Search projects</span>
+      <input type="search" placeholder="Search projects" [value]="search()" (input)="onSearch($event)" />
+    </label>
+    <label class="sort">
+      <span class="sr-only">Sort projects</span>
+      <select class="input" (change)="setSort($event)">
+        @for (option of sortOptions; track option.value) {
+          <option [value]="option.value" [selected]="option.value === sortValue()">{{ option.label }}</option>
+        }
+      </select>
+    </label>
+  </div>
+
+  @if (list.data(); as data) {
+    @if (data.items.length === 0) {
+      <section class="card state">
+        @if (search().trim()) {
+          <h2>No projects match “{{ search().trim() }}”</h2>
+          <p>Try a different name or word from the description.</p>
+        } @else {
+          <h2>No projects yet</h2>
+          <p>You aren’t a member of any project yet.</p>
+          <button type="button" class="btn btn-primary" *appHasPermission="perms.Projects.Create" (click)="createProject()">
+            <app-icon name="plus" /> Create your first project
+          </button>
+        }
+      </section>
+    } @else {
+      <div class="grid" [class.stale]="list.loading()" [attr.aria-busy]="list.loading()">
+        @for (card of cards(); track card.project.id) {
+          <app-project-card
+            [project]="card.project"
+            [members]="card.members"
+            [stats]="card.stats"
+            [canEdit]="card.canEdit"
+            [canDelete]="card.canDelete"
+            (edit)="editProject(card.project)"
+            (delete)="deleteProject(card.project, card.stats.total)"
+          />
+        }
+      </div>
+      <app-pagination [page]="data.page" [pageSize]="pageSize" [total]="data.totalCount" label="Projects pages" (pageChange)="setPage($event)" />
+    }
+  } @else if (list.error()) {
+    <app-load-error message="The project list couldn’t be loaded." (retry)="list.reload()" />
+  } @else {
+    <div class="grid" aria-busy="true" aria-label="Loading projects">
+      @for (i of skeletons; track i) {
+        <div class="card skeleton-card"><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span></div>
+      }
+    </div>
+  }
+</div>

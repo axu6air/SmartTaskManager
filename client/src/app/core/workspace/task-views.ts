@@ -27,7 +27,8 @@ export class TaskViews {
   private readonly permissions = inject(PermissionService);
   private readonly auth = inject(AuthService);
 
-  readonly all = computed<TaskView[]>(() => {
+  /** Builds views for any tasks (store tasks or a server page); reactive on store, user and grants. */
+  readonly toViews = computed(() => {
     const me = this.auth.me()?.id;
     const projects = this.store.projectById();
     const people = this.store.people();
@@ -36,26 +37,29 @@ export class TaskViews {
     this.auth.permissions();
     const now = new Date();
 
-    return this.store.tasks().map((task) => {
-      const projectMembers = members[task.projectId] ?? [];
-      const closed = isClosed(task.status);
-      const can = (code: Parameters<PermissionService['canOnTask']>[0]) =>
-        this.permissions.canOnTask(code, task, projectMembers);
+    return (tasks: readonly ProjectTask[]): TaskView[] =>
+      tasks.map((task) => {
+        const projectMembers = members[task.projectId] ?? [];
+        const closed = isClosed(task.status);
+        const can = (code: Parameters<PermissionService['canOnTask']>[0]) =>
+          this.permissions.canOnTask(code, task, projectMembers);
 
-      return {
-        task,
-        projectName: projects.get(task.projectId)?.name ?? 'Unknown project',
-        assigneeName: task.assigneeId ? (people.get(task.assigneeId)?.fullName ?? 'Former member') : null,
-        isMine: task.assigneeId !== null && task.assigneeId === me,
-        closed,
-        due: dueInfo(task.dueDate, closed, now),
-        canChangeStatus: can(Permissions.Tasks.UpdateStatus),
-        canEdit: can(Permissions.Tasks.Update),
-        canAssign: can(Permissions.Tasks.Assign),
-        canDelete: can(Permissions.Tasks.Delete),
-      };
-    });
+        return {
+          task,
+          projectName: projects.get(task.projectId)?.name ?? 'Unknown project',
+          assigneeName: task.assigneeId ? (people.get(task.assigneeId)?.fullName ?? 'Former member') : null,
+          isMine: task.assigneeId !== null && task.assigneeId === me,
+          closed,
+          due: dueInfo(task.dueDate, closed, now),
+          canChangeStatus: can(Permissions.Tasks.UpdateStatus),
+          canEdit: can(Permissions.Tasks.Update),
+          canAssign: can(Permissions.Tasks.Assign),
+          canDelete: can(Permissions.Tasks.Delete),
+        };
+      });
   });
+
+  readonly all = computed<TaskView[]>(() => this.toViews()(this.store.tasks()));
 
   readonly byId = computed(() => new Map(this.all().map((v) => [v.task.id, v])));
 

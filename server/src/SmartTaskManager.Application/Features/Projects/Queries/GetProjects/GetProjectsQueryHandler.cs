@@ -22,13 +22,23 @@ public sealed class GetProjectsQueryHandler(
         var scopes =
             await permissions.GetScopesAsync(userId, Permissions.Projects.View, ct) ?? default;
         var (page, pageSize) = Paging.Normalize(request.Page, request.PageSize);
+        var (sortBy, ascending) = ProjectSorts.Fields.Resolve(request.SortBy, request.SortDirection);
 
         // The scope is part of the query, so the user only ever receives projects they may see.
+        var predicate = ScopeFilters.Projects(userId, scopes);
+        var search = request.Search?.Trim();
+        if (!string.IsNullOrEmpty(search))
+        {
+            predicate = predicate.And(p =>
+                p.Name.Contains(search) || (p.Description != null && p.Description.Contains(search)));
+        }
+
         var result = await projects.FindResultSetAsync(
             page,
             pageSize,
-            predicate: ScopeFilters.Projects(userId, scopes),
-            sortBy: p => p.Name,
+            predicate: predicate,
+            sortBy: sortBy,
+            ascending: ascending,
             ct: ct
         );
 

@@ -13,6 +13,17 @@ export interface ApiResponse<T> {
   traceId: string;
 }
 
+export type SortDirection = 'asc' | 'desc';
+
+/** Query parameters shared by the paged list endpoints. Empty values are left out of the request. */
+export interface ListQuery {
+  page: number;
+  pageSize: number;
+  search?: string;
+  sortBy?: string;
+  sortDirection?: SortDirection;
+}
+
 /** Mirrors SmartTaskManager.Application.Common.PagedResponse<T>. */
 export interface PagedResponse<T> {
   items: T[];

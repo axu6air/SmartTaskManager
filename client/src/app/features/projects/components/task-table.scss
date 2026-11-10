@@ -1,5 +1,30 @@
 .list {
   overflow-x: auto;
+  transition: opacity 0.15s;
+}
+.list.stale {
+  opacity: 0.6;
+}
+.sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 28px;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+}
+.sort-btn:hover,
+.sort-btn.active {
+  color: var(--fg);
+}
+.arrow {
+  font-size: 11px;
+  opacity: 0.7;
 }
 .list-inner {
   min-width: 700px;

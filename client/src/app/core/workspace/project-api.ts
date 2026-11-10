@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { ApiService } from '@core/http/api.service';
-import { Guid, PagedResponse } from '@models/api';
+import { Guid, ListQuery, PagedResponse } from '@models/api';
+import { toParams } from '@shared/utils/query-params';
 import { HttpContext } from '@angular/common/http';
 import { SKIP_LOADING } from '@core/http/http-context';
 import { CreateProjectRequest, ProjectMember, ProjectSummary, UpdateProjectRequest, UserSummary } from '@models/project';
@@ -10,8 +11,8 @@ import { Observable } from 'rxjs';
 export class ProjectApi {
   private readonly api = inject(ApiService);
 
-  list(page: number, pageSize: number): Observable<PagedResponse<ProjectSummary>> {
-    return this.api.get('/projects', { params: { page, pageSize } });
+  list(query: ListQuery): Observable<PagedResponse<ProjectSummary>> {
+    return this.api.get('/projects', { params: toParams(query) });
   }
 
   create(body: CreateProjectRequest): Observable<ProjectSummary> {

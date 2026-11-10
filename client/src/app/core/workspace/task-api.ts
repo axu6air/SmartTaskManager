@@ -1,20 +1,22 @@
 import { Injectable, inject } from '@angular/core';
 import { ApiService } from '@core/http/api.service';
-import { Guid, PagedResponse } from '@models/api';
+import { Guid, ListQuery, PagedResponse } from '@models/api';
 import {
   CreateTaskRequest,
   ProjectTask,
+  TaskListFilters,
   TaskStatus,
   UpdateTaskRequest,
 } from '@models/task';
+import { toParams } from '@shared/utils/query-params';
 import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class TaskApi {
   private readonly api = inject(ApiService);
 
-  list(projectId: Guid, page: number, pageSize: number): Observable<PagedResponse<ProjectTask>> {
-    return this.api.get(`/projects/${projectId}/tasks`, { params: { page, pageSize } });
+  list(projectId: Guid, query: ListQuery & TaskListFilters): Observable<PagedResponse<ProjectTask>> {
+    return this.api.get(`/projects/${projectId}/tasks`, { params: toParams(query) });
   }
 
   create(projectId: Guid, body: CreateTaskRequest): Observable<ProjectTask> {

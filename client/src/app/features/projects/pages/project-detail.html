@@ -52,9 +52,33 @@
           }
           <span class="vsep" aria-hidden="true"></span>
           <button type="button" class="chip" [attr.aria-pressed]="mineOnly()" (click)="toggleMine()">Only my tasks</button>
+          <label class="priority-filter">
+            <span class="sr-only">Filter by priority</span>
+            <select class="input" (change)="setPriority($event)">
+              <option value="0" [selected]="priorityFilter() === 0">All priorities</option>
+              @for (p of priorities; track p.id) {
+                <option [value]="p.id" [selected]="priorityFilter() === p.id">{{ p.label }}</option>
+              }
+            </select>
+          </label>
         </div>
 
-        <app-task-table [tasks]="rows()" [emptyMessage]="emptyMessage()" (open)="actions.openDetails($event)" />
+        @if (list.data(); as data) {
+          <app-task-table
+            [tasks]="rows()"
+            [emptyMessage]="emptyMessage()"
+            [sortBy]="sortBy()"
+            [sortDirection]="sortDirection()"
+            [loading]="list.loading()"
+            (sortChange)="setSort($event)"
+            (open)="actions.openDetails($event)"
+          />
+          <app-pagination [page]="data.page" [pageSize]="pageSize" [total]="data.totalCount" label="Task pages" (pageChange)="setPage($event)" />
+        } @else if (list.error()) {
+          <app-load-error message="The task list couldn’t be loaded." (retry)="list.reload()" />
+        } @else {
+          <span class="skeleton sk-table" aria-busy="true" aria-label="Loading tasks"></span>
+        }
       </div>
     } @else {
       <section class="card state">

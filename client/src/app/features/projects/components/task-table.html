@@ -1,11 +1,18 @@
-<div class="card list">
+<div class="card list" [class.stale]="loading()" [attr.aria-busy]="loading()">
   <div class="list-inner" role="table" aria-label="Tasks">
     <div class="row row-head label" role="row">
-      <span role="columnheader">Task</span>
-      <span role="columnheader">Status</span>
-      <span role="columnheader">Priority</span>
-      <span role="columnheader">Assignee</span>
-      <span role="columnheader">Due</span>
+      @for (col of columns; track col.label) {
+        @if (col.field; as field) {
+          <span role="columnheader" [attr.aria-sort]="sortBy() === field ? (sortDirection() === 'asc' ? 'ascending' : 'descending') : 'none'">
+            <button type="button" class="sort-btn" [class.active]="sortBy() === field" (click)="sortChange.emit(field)">
+              {{ col.label }}
+              <span class="arrow" aria-hidden="true">{{ sortBy() === field ? (sortDirection() === 'asc' ? '↑' : '↓') : '↕' }}</span>
+            </button>
+          </span>
+        } @else {
+          <span role="columnheader">{{ col.label }}</span>
+        }
+      }
     </div>
     @for (v of tasks(); track v.task.id) {
       <button type="button" class="row" role="row" (click)="open.emit(v.task.id)" [attr.aria-label]="'Open task ' + v.task.title">

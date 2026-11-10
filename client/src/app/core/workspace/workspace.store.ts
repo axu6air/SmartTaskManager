@@ -89,13 +89,13 @@ export const WorkspaceStore = signalStore(
         const run = ++generation;
         patchState(store, { status: 'loading', error: null });
         try {
-          const projects = await fetchAll((n) => projectApi.list(n, PAGE_SIZE));
+          const projects = await fetchAll((n) => projectApi.list({ page: n, pageSize: PAGE_SIZE }));
           const details = await Promise.all(
             projects.map((p) =>
               Promise.all([
                 firstValueFrom(projectApi.members(p.id)),
                 options.includeTasks
-                  ? fetchAll((n) => taskApi.list(p.id, n, PAGE_SIZE))
+                  ? fetchAll((n) => taskApi.list(p.id, { page: n, pageSize: PAGE_SIZE }))
                   : Promise.resolve([]),
               ]),
             ),
