@@ -28,7 +28,8 @@ public static class UpdateTaskEndpoint
                         request.Title,
                         request.Description,
                         request.Priority,
-                        request.DueDate
+                        request.DueDate,
+                        request.IsAiModified
                     );
 
                     var result = await sender.Send(command, ct);

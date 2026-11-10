@@ -16,6 +16,7 @@ internal sealed class ProjectConfiguration : IEntityTypeConfiguration<Project>
 
         builder.Property(p => p.Name).HasMaxLength(200).IsRequired();
         builder.Property(p => p.Description).HasMaxLength(2000);
+        builder.Property(p => p.IsAiModified).IsRequired();
         builder.Property(p => p.IsDeleted).IsRequired();
         builder.Property(p => p.RowVersion).IsRowVersion();
 

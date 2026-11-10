@@ -70,4 +70,22 @@ public class ProjectTests
 
         act.Should().Throw<DomainException>();
     }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Update_IsAiModified_IsStored(bool isAiModified)
+    {
+        var project = NewProject();
+
+        project.Update("Apollo", "Docs", null, null, isAiModified);
+
+        project.IsAiModified.Should().Be(isAiModified);
+    }
+
+    [Fact]
+    public void Create_ValidInput_IsNotAiModified()
+    {
+        NewProject().IsAiModified.Should().BeFalse();
+    }
 }

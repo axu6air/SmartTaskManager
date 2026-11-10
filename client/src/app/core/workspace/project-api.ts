@@ -3,7 +3,7 @@ import { ApiService } from '@core/http/api.service';
 import { Guid, PagedResponse } from '@models/api';
 import { HttpContext } from '@angular/common/http';
 import { SKIP_LOADING } from '@core/http/http-context';
-import { CreateProjectRequest, ProjectMember, ProjectSummary, UserSummary } from '@models/project';
+import { CreateProjectRequest, ProjectMember, ProjectSummary, UpdateProjectRequest, UserSummary } from '@models/project';
 import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
@@ -18,7 +18,7 @@ export class ProjectApi {
     return this.api.post('/projects', body);
   }
 
-  update(projectId: Guid, body: CreateProjectRequest): Observable<ProjectSummary> {
+  update(projectId: Guid, body: UpdateProjectRequest): Observable<ProjectSummary> {
     return this.api.put(`/projects/${projectId}`, body);
   }
 

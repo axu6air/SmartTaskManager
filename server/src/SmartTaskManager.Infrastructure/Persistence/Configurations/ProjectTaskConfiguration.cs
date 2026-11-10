@@ -19,6 +19,7 @@ internal sealed class ProjectTaskConfiguration : IEntityTypeConfiguration<Projec
         builder.Property(t => t.Description).HasMaxLength(4000);
         builder.Property(t => t.Status).IsRequired();
         builder.Property(t => t.Priority).IsRequired();
+        builder.Property(t => t.IsAiModified).IsRequired();
         builder.Property(t => t.IsDeleted).IsRequired();
         builder.Property(t => t.RowVersion).IsRowVersion();
 

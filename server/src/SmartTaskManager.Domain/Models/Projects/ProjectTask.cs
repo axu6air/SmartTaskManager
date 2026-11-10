@@ -24,6 +24,9 @@ public class ProjectTask : Entity, ITrackCreated, ITrackUpdated, ISoftDeletable
 
     public DateTimeOffset? CompletedAt { get; private set; }
 
+    // True when the latest update saved AI-suggested content.
+    public bool IsAiModified { get; private set; }
+
     public bool IsDeleted { get; private set; }
 
     public Guid? DeletedBy { get; private set; }
@@ -59,7 +62,7 @@ public class ProjectTask : Entity, ITrackCreated, ITrackUpdated, ISoftDeletable
             Status = ProjectTaskStatus.ToDo,
         };
 
-        task.Update(title, description, priority, dueDate);
+        task.Update(title, description, priority, dueDate, isAiModified: false);
         task.Assign(project, assigneeId);
 
         return task;
@@ -69,7 +72,8 @@ public class ProjectTask : Entity, ITrackCreated, ITrackUpdated, ISoftDeletable
         string title,
         string? description,
         ProjectTaskPriority priority,
-        DateTimeOffset? dueDate
+        DateTimeOffset? dueDate,
+        bool isAiModified
     )
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(title);
@@ -83,6 +87,7 @@ public class ProjectTask : Entity, ITrackCreated, ITrackUpdated, ISoftDeletable
         Description = description;
         Priority = priority;
         DueDate = dueDate;
+        IsAiModified = isAiModified;
     }
 
     public void Assign(Project project, Guid? assigneeId)

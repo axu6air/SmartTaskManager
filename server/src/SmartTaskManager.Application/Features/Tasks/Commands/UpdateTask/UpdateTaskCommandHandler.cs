@@ -28,7 +28,13 @@ public sealed class UpdateTaskCommandHandler(
         }
 
         var task = found.Value!;
-        task.Update(request.Title, request.Description, request.Priority, request.DueDate);
+        task.Update(
+            request.Title,
+            request.Description,
+            request.Priority,
+            request.DueDate,
+            request.IsAiModified
+        );
         await tasks.SaveChangesAsync(ct);
 
         return Result<ProjectTaskResponse>.Success(ProjectTaskResponse.From(task));

@@ -7,7 +7,9 @@ public sealed record UpdateTaskRequest(
     string Title,
     string? Description,
     ProjectTaskPriority Priority,
-    DateTimeOffset? DueDate
+    DateTimeOffset? DueDate,
+    // Set to true when the saved content came from the AI suggestion; false when omitted.
+    bool IsAiModified = false
 ) : ITaskFields;
 
 public sealed class UpdateTaskRequestValidator : TaskFieldsValidator<UpdateTaskRequest>;

@@ -40,6 +40,13 @@
         @else if (e['server']) { {{ e['server'] }} }
       </span>
     }
+    @if (project) {
+      @if (aiLocked()) {
+        <span class="hint ai-done"><app-icon name="spark" /> Improved with AI</span>
+      } @else {
+        <app-ai-suggest [title]="form.controls.name.value" [description]="form.controls.description.value" (apply)="applyAi($event)" />
+      }
+    }
   </div>
 
   <div class="two">

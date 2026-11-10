@@ -1,9 +1,11 @@
 import { DIALOG_DATA, Dialog, DialogRef } from '@angular/cdk/dialog';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AbstractControl, NonNullableFormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { toAppError } from '@core/http/app-error';
+import { AiSuggest } from '@core/workspace/ai-suggest';
 import { WorkspaceStore } from '@core/workspace/workspace.store';
+import { AiSuggestion } from '@models/task';
 import { Guid } from '@models/api';
 import { ProjectSummary } from '@models/project';
 import { Icon } from '@shared/ui/icon';
@@ -30,7 +32,7 @@ export function openProjectDialog(dialog: Dialog, project?: ProjectSummary): Obs
 @Component({
   selector: 'app-project-form-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, Icon],
+  imports: [ReactiveFormsModule, Icon, AiSuggest],
   templateUrl: './project-form-dialog.html',
 })
 export class ProjectFormDialog {
@@ -63,6 +65,19 @@ export class ProjectFormDialog {
     });
   }
 
+  /** AI content was applied in this edit; saved as isAiModified so the button stays hidden afterwards. */
+  private readonly aiApplied = signal(false);
+  protected readonly aiLocked = computed(() => this.project?.isAiModified === true || this.aiApplied());
+
+  protected applyAi(suggestion: AiSuggestion): void {
+    this.form.patchValue({ name: suggestion.title, description: suggestion.description });
+    this.form.markAsDirty();
+    // Shows a length error at once if the suggestion is longer than a project description allows.
+    this.form.controls.name.markAsTouched();
+    this.form.controls.description.markAsTouched();
+    this.aiApplied.set(true);
+  }
+
   protected requestClose(): void {
     if (this.form.dirty && !this.pending()) {
       this.confirmingDiscard.set(true);
@@ -92,7 +107,8 @@ export class ProjectFormDialog {
         endDate: value.endDate ? endOfLocalDayIso(value.endDate) : null,
       };
       if (this.project) {
-        await this.store.updateProject(this.project.id, body);
+        // Kept true once set: the backend treats a missing flag as false, which would re-enable AI after a manual edit.
+        await this.store.updateProject(this.project.id, { ...body, isAiModified: this.aiLocked() });
         this.ref.close(this.project.id);
       } else {
         this.ref.close((await this.store.createProject(body)).id);

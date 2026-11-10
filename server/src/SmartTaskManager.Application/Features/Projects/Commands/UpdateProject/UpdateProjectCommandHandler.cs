@@ -34,7 +34,13 @@ public sealed class UpdateProjectCommandHandler(
             return Result<ProjectResponse>.Failure(ProjectErrors.NameTaken);
         }
 
-        project.Update(request.Name, request.Description, request.StartDate, request.EndDate);
+        project.Update(
+            request.Name,
+            request.Description,
+            request.StartDate,
+            request.EndDate,
+            request.IsAiModified
+        );
         await projects.SaveChangesAsync(ct);
 
         return Result<ProjectResponse>.Success(ProjectResponse.From(project));

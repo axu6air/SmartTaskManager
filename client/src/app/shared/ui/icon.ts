@@ -21,7 +21,8 @@ export type IconName =
   | 'board'
   | 'chart'
   | 'shield'
-  | 'more';
+  | 'more'
+  | 'spark';
 
 /** Inline stroke icons that inherit the text colour. Always decorative: label the parent control. */
 @Component({
@@ -60,6 +61,7 @@ export type IconName =
         @case ('board') { <rect x="3" y="4" width="5" height="16" rx="1.5" /><rect x="10" y="4" width="5" height="11" rx="1.5" /><rect x="17" y="4" width="4" height="7" rx="1.5" /> }
         @case ('chart') { <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /> }
         @case ('more') { <circle cx="12" cy="5" r="1.6" fill="currentColor" /><circle cx="12" cy="12" r="1.6" fill="currentColor" /><circle cx="12" cy="19" r="1.6" fill="currentColor" /> }
+        @case ('spark') { <path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z" /><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z" /> }
         @case ('shield') { <path d="M12 3l8 3v6c0 4.5-3.4 8.4-8 9-4.6-.6-8-4.5-8-9V6l8-3z" /><path d="M9 12l2 2 4-4" /> }
       }
     </svg>

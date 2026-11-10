@@ -10,5 +10,6 @@ public sealed record UpdateTaskCommand(
     string Title,
     string? Description,
     ProjectTaskPriority Priority,
-    DateTimeOffset? DueDate
+    DateTimeOffset? DueDate,
+    bool IsAiModified
 ) : IRequest<Result<ProjectTaskResponse>>, ITaskFields;

@@ -5,10 +5,11 @@ import { AbstractControl, NonNullableFormBuilder, ReactiveFormsModule, Validatio
 import { AppError, toAppError } from '@core/http/app-error';
 import { Guid } from '@models/api';
 import { ProjectSummary } from '@models/project';
-import { ProjectTask, TASK_PRIORITIES, TaskPriority } from '@models/task';
+import { AiSuggestion, ProjectTask, TASK_PRIORITIES, TaskPriority } from '@models/task';
 import { Icon } from '@shared/ui/icon';
 import { endOfLocalDayIso, isoToLocalYmd, todayYmd } from '@shared/utils/date';
 import { applyServerErrors } from '@shared/utils/server-errors';
+import { AiSuggest } from './ai-suggest';
 import { WorkspaceStore } from './workspace.store';
 
 export interface TaskFormData {
@@ -28,7 +29,7 @@ function notInPast(control: AbstractControl<string>): ValidationErrors | null {
 @Component({
   selector: 'app-task-form-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, Icon],
+  imports: [ReactiveFormsModule, Icon, AiSuggest],
   templateUrl: './task-form-dialog.html',
 })
 export class TaskFormDialog {
@@ -89,6 +90,18 @@ export class TaskFormDialog {
     this.ref.close(false);
   }
 
+  /** AI content was applied in this edit; saved as isAiModified so the button stays hidden afterwards. */
+  private readonly aiApplied = signal(false);
+  protected readonly aiLocked = computed(() => this.data.task?.isAiModified === true || this.aiApplied());
+
+  protected applyAi(suggestion: AiSuggestion): void {
+    this.form.patchValue({ title: suggestion.title, description: suggestion.description });
+    this.form.markAsDirty();
+    this.form.controls.title.markAsTouched();
+    this.form.controls.description.markAsTouched();
+    this.aiApplied.set(true);
+  }
+
   protected setPriority(priority: TaskPriority): void {
     this.form.controls.priority.setValue(priority);
     this.form.markAsDirty();
@@ -113,7 +126,12 @@ export class TaskFormDialog {
     this.pending.set(true);
     try {
       if (this.data.task) {
-        await this.store.updateTask(this.data.task, body, this.data.canAssign ? assigneeId : undefined);
+        // Kept true once set: the backend treats a missing flag as false, which would re-enable AI after a manual edit.
+        await this.store.updateTask(
+          this.data.task,
+          { ...body, isAiModified: this.aiLocked() },
+          this.data.canAssign ? assigneeId : undefined,
+        );
       } else {
         await this.store.createTask(value.projectId, { ...body, assigneeId });
       }

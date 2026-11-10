@@ -7,14 +7,21 @@ export interface ProjectSummary {
   description: string | null;
   startDate: OffsetDateString | null;
   endDate: OffsetDateString | null;
+  /** True once AI-suggested content was saved. */
+  isAiModified: boolean;
 }
 
-/** Mirrors CreateProjectRequest and UpdateProjectRequest (same fields). The response is a ProjectSummary plus member IDs. */
+/** Mirrors CreateProjectRequest. The response is a ProjectSummary plus member IDs. */
 export interface CreateProjectRequest {
   name: string;
   description: string | null;
   startDate: OffsetDateString | null;
   endDate: OffsetDateString | null;
+}
+
+/** Mirrors UpdateProjectRequest. */
+export interface UpdateProjectRequest extends CreateProjectRequest {
+  isAiModified: boolean;
 }
 
 /** Mirrors UserSummary (GET /api/users?search=). */

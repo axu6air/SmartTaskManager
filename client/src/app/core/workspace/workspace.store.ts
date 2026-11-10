@@ -1,7 +1,7 @@
 import { computed, inject } from '@angular/core';
 import { toAppError } from '@core/http/app-error';
 import { Guid, PagedResponse } from '@models/api';
-import { CreateProjectRequest, ProjectMember, ProjectSummary } from '@models/project';
+import { CreateProjectRequest, ProjectMember, ProjectSummary, UpdateProjectRequest } from '@models/project';
 import {
   CreateTaskRequest,
   ProjectTask,
@@ -48,7 +48,8 @@ function byName(projects: ProjectSummary[]): ProjectSummary[] {
 
 /** Create/update return the full ProjectResponse; keep only the summary fields (members are stored separately). */
 function toSummary(p: ProjectSummary): ProjectSummary {
-  return { id: p.id, name: p.name, description: p.description, startDate: p.startDate, endDate: p.endDate };
+  const { id, name, description, startDate, endDate, isAiModified } = p;
+  return { id, name, description, startDate, endDate, isAiModified };
 }
 
 /**
@@ -126,7 +127,7 @@ export const WorkspaceStore = signalStore(
         return project;
       },
 
-      async updateProject(projectId: Guid, body: CreateProjectRequest): Promise<void> {
+      async updateProject(projectId: Guid, body: UpdateProjectRequest): Promise<void> {
         const project = toSummary(await firstValueFrom(projectApi.update(projectId, body)));
         patchState(store, {
           projects: byName(store.projects().map((p) => (p.id === projectId ? project : p))),

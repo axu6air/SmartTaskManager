@@ -335,6 +335,14 @@ textarea.input {
   color: var(--muted);
   font-weight: 400;
 }
+.ai-done {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-end;
+  color: var(--accent-ink);
+  font-weight: 500;
+}
 .pw-wrap {
   display: flex;
   align-items: center;

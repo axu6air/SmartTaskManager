@@ -26,7 +26,8 @@ public static class UpdateProjectEndpoint
                         request.Name,
                         request.Description,
                         request.StartDate,
-                        request.EndDate
+                        request.EndDate,
+                        request.IsAiModified
                     );
 
                     var result = await sender.Send(command, ct);

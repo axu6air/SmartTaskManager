@@ -62,6 +62,8 @@ export interface ProjectTask {
   dueDate: OffsetDateString | null;
   assigneeId: Guid | null;
   completedAt: OffsetDateString | null;
+  /** True once AI-suggested content was saved. */
+  isAiModified: boolean;
 }
 
 /** Mirrors CreateTaskRequest. */
@@ -79,4 +81,11 @@ export interface UpdateTaskRequest {
   description: string | null;
   priority: TaskPriority;
   dueDate: OffsetDateString | null;
+  isAiModified: boolean;
+}
+
+/** Mirrors EnhanceTaskDescriptionRequest / Response (POST /api/ai/task-description). Never saved by the server. */
+export interface AiSuggestion {
+  title: string;
+  description: string;
 }

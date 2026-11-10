@@ -94,4 +94,22 @@ public class ProjectTaskTests
 
         task.AssigneeId.Should().BeNull();
     }
+
+    [Fact]
+    public void Update_AiModifiedThenManualEdit_ClearsTheFlag()
+    {
+        var task = NewTask(NewProject());
+
+        task.Update("Write docs", "AI text", ProjectTaskPriority.Medium, null, isAiModified: true);
+        task.IsAiModified.Should().BeTrue();
+
+        task.Update("Write docs", "My text", ProjectTaskPriority.Medium, null, isAiModified: false);
+        task.IsAiModified.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Create_ValidInput_IsNotAiModified()
+    {
+        NewTask(NewProject()).IsAiModified.Should().BeFalse();
+    }
 }

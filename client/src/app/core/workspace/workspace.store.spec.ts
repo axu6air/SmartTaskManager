@@ -19,6 +19,7 @@ describe('WorkspaceStore', () => {
     dueDate: null,
     assigneeId: null,
     completedAt: null,
+    isAiModified: false,
   };
   const taskApi = { changeStatus: vi.fn(), delete: vi.fn() };
 
@@ -71,7 +72,7 @@ describe('WorkspaceStore', () => {
     };
     TestBed.overrideProvider(ProjectApi, { useValue: projectApi });
     const store = setup();
-    patchState(unprotected(store), { projects: [{ id: 'p1', name: 'Zeta', description: null, startDate: null, endDate: null }] });
+    patchState(unprotected(store), { projects: [{ id: 'p1', name: 'Zeta', description: null, startDate: null, endDate: null, isAiModified: false }] });
 
     await store.createProject({ name: 'Alpha', description: null, startDate: null, endDate: null });
 
@@ -90,12 +91,12 @@ describe('WorkspaceStore', () => {
     const store = setup();
     patchState(unprotected(store), {
       projects: [
-        { id: 'p1', name: 'Zeta', description: null, startDate: null, endDate: null },
-        { id: 'p2', name: 'Gamma', description: null, startDate: null, endDate: null },
+        { id: 'p1', name: 'Zeta', description: null, startDate: null, endDate: null, isAiModified: false },
+        { id: 'p2', name: 'Gamma', description: null, startDate: null, endDate: null, isAiModified: false },
       ],
     });
 
-    await store.updateProject('p1', { name: 'Beta', description: 'New', startDate: null, endDate: null });
+    await store.updateProject('p1', { name: 'Beta', description: 'New', startDate: null, endDate: null, isAiModified: false });
 
     expect(store.projects().map((p) => p.name)).toEqual(['Beta', 'Gamma']);
     expect(store.projects()[0].description).toBe('New');
@@ -126,8 +127,8 @@ describe('WorkspaceStore', () => {
     const store = setup();
     patchState(unprotected(store), {
       projects: [
-        { id: 'p1', name: 'One', description: null, startDate: null, endDate: null },
-        { id: 'p2', name: 'Two', description: null, startDate: null, endDate: null },
+        { id: 'p1', name: 'One', description: null, startDate: null, endDate: null, isAiModified: false },
+        { id: 'p2', name: 'Two', description: null, startDate: null, endDate: null, isAiModified: false },
       ],
       members: { p1: [], p2: [] },
       tasks: [task, { ...task, id: 't2', projectId: 'p2' }],

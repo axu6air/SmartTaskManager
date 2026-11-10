@@ -11,7 +11,8 @@ public sealed record ProjectTaskResponse(
     ProjectTaskPriority Priority,
     DateTimeOffset? DueDate,
     Guid? AssigneeId,
-    DateTimeOffset? CompletedAt
+    DateTimeOffset? CompletedAt,
+    bool IsAiModified
 )
 {
     public static ProjectTaskResponse From(ProjectTask task) =>
@@ -24,6 +25,7 @@ public sealed record ProjectTaskResponse(
             task.Priority,
             task.DueDate,
             task.AssigneeId,
-            task.CompletedAt
+            task.CompletedAt,
+            task.IsAiModified
         );
 }

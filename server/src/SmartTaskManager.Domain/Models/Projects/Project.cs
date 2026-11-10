@@ -16,6 +16,9 @@ public class Project : Entity, ITrackCreated, ITrackUpdated, ISoftDeletable
 
     public DateTimeOffset? EndDate { get; private set; }
 
+    // True when the latest update saved AI-suggested content.
+    public bool IsAiModified { get; private set; }
+
     public bool IsDeleted { get; private set; }
 
     public Guid? DeletedBy { get; private set; }
@@ -44,7 +47,7 @@ public class Project : Entity, ITrackCreated, ITrackUpdated, ISoftDeletable
     )
     {
         var project = new Project();
-        project.Update(name, description, startDate, endDate);
+        project.Update(name, description, startDate, endDate, isAiModified: false);
         project._members.Add(new ProjectMember(project, creatorId, isManager: true));
 
         return project;
@@ -54,7 +57,8 @@ public class Project : Entity, ITrackCreated, ITrackUpdated, ISoftDeletable
         string name,
         string? description,
         DateTimeOffset? startDate,
-        DateTimeOffset? endDate
+        DateTimeOffset? endDate,
+        bool isAiModified
     )
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
@@ -68,6 +72,7 @@ public class Project : Entity, ITrackCreated, ITrackUpdated, ISoftDeletable
         Description = description;
         StartDate = startDate;
         EndDate = endDate;
+        IsAiModified = isAiModified;
     }
 
     // Members must be loaded before calling any of the member methods below.

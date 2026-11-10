@@ -10,6 +10,7 @@ public sealed record ProjectResponse(
     string? Description,
     DateTimeOffset? StartDate,
     DateTimeOffset? EndDate,
+    bool IsAiModified,
     IReadOnlyCollection<ProjectMemberResponse> Members
 )
 {
@@ -21,6 +22,7 @@ public sealed record ProjectResponse(
             project.Description,
             project.StartDate,
             project.EndDate,
+            project.IsAiModified,
             project.Members.Select(m => new ProjectMemberResponse(m.UserId, m.IsManager)).ToList()
         );
 }
@@ -31,9 +33,10 @@ public sealed record ProjectSummary(
     string Name,
     string? Description,
     DateTimeOffset? StartDate,
-    DateTimeOffset? EndDate
+    DateTimeOffset? EndDate,
+    bool IsAiModified
 )
 {
     public static ProjectSummary From(Project project) =>
-        new(project.Id, project.Name, project.Description, project.StartDate, project.EndDate);
+        new(project.Id, project.Name, project.Description, project.StartDate, project.EndDate, project.IsAiModified);
 }

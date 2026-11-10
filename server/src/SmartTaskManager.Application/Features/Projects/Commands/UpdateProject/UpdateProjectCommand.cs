@@ -8,5 +8,6 @@ public sealed record UpdateProjectCommand(
     string Name,
     string? Description,
     DateTimeOffset? StartDate,
-    DateTimeOffset? EndDate
+    DateTimeOffset? EndDate,
+    bool IsAiModified
 ) : IRequest<Result<ProjectResponse>>, IProjectFields;
