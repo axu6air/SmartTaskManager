@@ -4,7 +4,6 @@ using SmartTaskManager.Api.Endpoints;
 using SmartTaskManager.Api.Middleware;
 using SmartTaskManager.Application;
 using SmartTaskManager.Infrastructure;
-using SmartTaskManager.Infrastructure.Persistence.Initialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,14 +18,18 @@ builder
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    await app.Services.InitializeDatabaseAsync();
-}
+//if (app.Environment.IsDevelopment())
+//{
+//    await app.Services.InitializeDatabaseAsync();
+//}
 
 // Configure the HTTP request pipeline.
 
-app.UseExceptionHandler().UseHttpsRedirection().UseAuthentication().UseRequestLogging().UseEndpointAuthorization();
+app.UseExceptionHandler()
+    .UseHttpsRedirection()
+    .UseAuthentication()
+    .UseRequestLogging()
+    .UseEndpointAuthorization();
 app.MapEndpoints();
 
 await app.RunAsync();

@@ -8,6 +8,7 @@ public static class Extensions
             .MapProjectEndpoints()
             .MapTaskEndpoints()
             .MapRoleEndpoints()
-            .MapUserEndpoints();
+            .MapUserEndpoints()
+            .MapAiEndpoints();
     }
 }

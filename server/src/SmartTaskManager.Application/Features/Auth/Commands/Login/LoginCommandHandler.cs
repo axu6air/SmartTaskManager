@@ -24,13 +24,16 @@ public sealed class LoginCommandHandler(
         "Invalid email or password."
     );
 
-    public async Task<Result<LoginResponse>> Handle(LoginCommand request, CancellationToken ct)
+    public async Task<Result<LoginResponse>> Handle(
+        LoginCommand request,
+        CancellationToken cancellationToken
+    )
     {
         var now = timeProvider.GetUtcNow();
         var normalizedEmail = User.NormalizeEmail(request.Email);
         var user = await userRepository.FindAsync(
             u => u.NormalizedEmail == normalizedEmail,
-            ct: ct
+            ct: cancellationToken
         );
 
         if (user is null or { IsActive: false } || user.IsLockedOut(now))
@@ -41,13 +44,13 @@ public sealed class LoginCommandHandler(
         if (!passwordHasher.Verify(user.PasswordHash, request.Password))
         {
             user.RecordFailedLogin(now, MaxFailedAttempts, LockoutDuration);
-            await userRepository.UpdateAsync(user, ct);
+            await userRepository.UpdateAsync(user, cancellationToken);
 
             return Result<LoginResponse>.Failure(InvalidCredentials);
         }
 
         user.RecordSuccessfulLogin(now);
-        await userRepository.UpdateAsync(user, ct);
+        await userRepository.UpdateAsync(user, cancellationToken);
 
         var refreshToken = tokenService.CreateRefreshToken();
         await refreshTokens.CreateAsync(
@@ -58,7 +61,7 @@ public sealed class LoginCommandHandler(
                 now.Add(tokenService.RefreshTokenLifetime),
                 request.IpAddress
             ),
-            ct
+            cancellationToken
         );
 
         return Result<LoginResponse>.Success(

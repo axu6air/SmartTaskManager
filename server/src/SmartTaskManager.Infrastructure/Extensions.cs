@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using SmartTaskManager.Application.Common.Abstractions;
+using SmartTaskManager.Infrastructure.Ai;
 using SmartTaskManager.Domain.Repositories;
 using SmartTaskManager.Infrastructure.Persistence;
 using SmartTaskManager.Infrastructure.Persistence.Initialization;
@@ -22,6 +23,7 @@ public static class Extensions
             .ValidateOnStart();
 
         services.AddJwtConfiguration();
+        services.AddAi();
 
         services.AddSingleton<SlowQueryInterceptor>();
         services.AddScoped<AuditableEntityInterceptor>();
