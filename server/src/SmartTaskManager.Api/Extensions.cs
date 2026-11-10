@@ -62,6 +62,7 @@ public static class ApiExtensions
         services.AddExceptionHandler<CancellationExceptionHandler>();
         services.AddExceptionHandler<InvalidOperationExceptionHandler>();
         services.AddExceptionHandler<RepositoryExceptionHandler>();
+        services.AddExceptionHandler<AiServiceExceptionHandler>();
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddProblemDetails();
 

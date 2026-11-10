@@ -37,7 +37,9 @@ public static class EnhanceTaskDescriptionEndpoint
                 StatusCodes.Status400BadRequest,
                 StatusCodes.Status401Unauthorized,
                 StatusCodes.Status403Forbidden,
-                StatusCodes.Status503ServiceUnavailable
+                StatusCodes.Status502BadGateway,
+                StatusCodes.Status503ServiceUnavailable,
+                StatusCodes.Status504GatewayTimeout
             )
             .Authorize(Permissions.Ai.EnhanceDescription);
     }

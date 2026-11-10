@@ -12,12 +12,15 @@ public sealed class EnhanceTaskDescriptionCommandHandler(ITaskDescriptionEnhance
         CancellationToken cancellationToken
     )
     {
-        var result = await enhancer.EnhanceAsync(
+        // AI failures throw AiServiceException, which AiServiceExceptionHandler turns into the HTTP response.
+        var task = await enhancer.EnhanceAsync(
             request.Title,
             request.Description,
             cancellationToken
         );
 
-        return result.Map(task => new EnhanceTaskDescriptionResponse(task.Title, task.Description));
+        return Result<EnhanceTaskDescriptionResponse>.Success(
+            new EnhanceTaskDescriptionResponse(task.Title, task.Description)
+        );
     }
 }

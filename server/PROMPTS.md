@@ -48,6 +48,6 @@ Reply with only this JSON object and nothing else:
 
 1. The user's text sits inside delimiter tags, and the system prompt says that tagged content is data, never instructions.
 2. Any `<task_title>` or `<task_description>` tag inside the user's text is removed first, so the text cannot close a delimiter early.
-3. The reply must be a JSON object with a non-empty string `title` of at most 200 characters and a non-empty string `description` of at most 4000 characters (the column lengths). Any other reply returns `503` with a generic message. The raw reply is never returned to the user.
+3. The reply must be a JSON object with a non-empty string `title` of at most 200 characters and a non-empty string `description` of at most 4000 characters (the column lengths). Any other reply raises `AiServiceException` (InvalidResponse), which the API returns as `502` with a generic message. The raw reply is never returned to the user.
 4. The input is limited to a 200-character title and a 4000-character description, which the request validator enforces.
 5. The suggestion is only returned to the user. The endpoint never saves it.

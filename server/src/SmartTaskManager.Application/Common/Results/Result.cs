@@ -7,7 +7,6 @@ public enum ErrorType
     Forbidden,
     NotFound,
     Conflict,
-    ServiceUnavailable,
 }
 
 public sealed record Error(

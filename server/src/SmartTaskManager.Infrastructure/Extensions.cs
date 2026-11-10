@@ -51,6 +51,9 @@ public static class Extensions
             }
         );
 
+        // Readiness probe: the database answers. Mapped by the Api at /health/ready.
+        services.AddHealthChecks().AddDbContextCheck<ApplicationDbContext>("database");
+
         services.TryAddSingleton(TimeProvider.System);
         services.AddSingleton<IPasswordHasher, IdentityPasswordHasher>();
 

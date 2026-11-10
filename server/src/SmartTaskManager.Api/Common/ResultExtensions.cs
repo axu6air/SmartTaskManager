@@ -50,11 +50,6 @@ public static class ResultExtensions
             return StatusCodes.Status404NotFound;
         }
 
-        if (type == ErrorType.ServiceUnavailable)
-        {
-            return StatusCodes.Status503ServiceUnavailable;
-        }
-
         return StatusCodes.Status409Conflict;
     }
 }

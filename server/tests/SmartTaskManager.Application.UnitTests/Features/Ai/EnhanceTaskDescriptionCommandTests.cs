@@ -1,8 +1,8 @@
 using FluentAssertions;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using SmartTaskManager.Application.Common.Abstractions;
-using SmartTaskManager.Application.Common.Results;
-using SmartTaskManager.Application.Features.Ai;
+using SmartTaskManager.Application.Common.Exceptions;
 using SmartTaskManager.Application.Features.Ai.Commands.EnhanceTaskDescription;
 
 namespace SmartTaskManager.Application.UnitTests.Features.Ai;
@@ -15,7 +15,7 @@ public class EnhanceTaskDescriptionCommandTests
     public async Task Handle_EnhancerSucceeds_ReturnsTheSuggestion()
     {
         _enhancer.EnhanceAsync("Login", "fix login", Arg.Any<CancellationToken>())
-            .Returns(Result<EnhancedTask>.Success(new EnhancedTask("Fix login", "Fix the login flow.")));
+            .Returns(new EnhancedTask("Fix login", "Fix the login flow."));
 
         var result = await new EnhanceTaskDescriptionCommandHandler(_enhancer)
             .Handle(new EnhanceTaskDescriptionCommand("Login", "fix login"), default);
@@ -25,16 +25,15 @@ public class EnhanceTaskDescriptionCommandTests
     }
 
     [Fact]
-    public async Task Handle_EnhancerFails_ReturnsTheFailure()
+    public async Task Handle_EnhancerThrows_LetsTheExceptionReachTheHandler()
     {
         _enhancer.EnhanceAsync(Arg.Any<string?>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(Result<EnhancedTask>.Failure(AiErrors.Unavailable));
+            .ThrowsAsync(AiServiceException.InvalidResponse());
 
-        var result = await new EnhanceTaskDescriptionCommandHandler(_enhancer)
+        var act = () => new EnhanceTaskDescriptionCommandHandler(_enhancer)
             .Handle(new EnhanceTaskDescriptionCommand(null, "fix login"), default);
 
-        result.IsSuccess.Should().BeFalse();
-        result.Error!.Type.Should().Be(ErrorType.ServiceUnavailable);
+        await act.Should().ThrowAsync<AiServiceException>();
     }
 
     [Theory]
