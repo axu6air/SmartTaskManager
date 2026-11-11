@@ -8,6 +8,7 @@ using SmartTaskManager.Api.Middleware;
 using SmartTaskManager.Api.RateLimiting;
 using SmartTaskManager.Application;
 using SmartTaskManager.Infrastructure;
+using SmartTaskManager.Infrastructure.Persistence.Initialization;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.AddSerilogLogging();
@@ -25,10 +26,10 @@ builder
 
 var app = builder.Build();
 
-//if (app.Environment.IsDevelopment())
-//{
-//    await app.Services.InitializeDatabaseAsync();
-//}
+if (app.Environment.IsDevelopment())
+{
+    await app.Services.InitializeDatabaseAsync();
+}
 
 // Configure the HTTP request pipeline.
 

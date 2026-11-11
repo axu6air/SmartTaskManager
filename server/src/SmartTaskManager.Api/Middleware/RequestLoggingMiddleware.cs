@@ -12,28 +12,22 @@ public sealed class RequestLoggingMiddleware(
     {
         var requestedAt = timeProvider.GetUtcNow();
         var started = timeProvider.GetTimestamp();
-        var statusCode = StatusCodes.Status500InternalServerError;
 
-        try
+        await next(context);
+        var statusCode = context.Response.StatusCode;
+
+        if (logger.IsEnabled(LogLevel.Information))
         {
-            await next(context);
-            statusCode = context.Response.StatusCode;
-        }
-        finally
-        {
-            if (logger.IsEnabled(LogLevel.Information))
-            {
-                logger.LogInformation(
-                    "{Method} {Path} by {UserId} from {RemoteIp} at {RequestedAt:o} returned {StatusCode} in {ElapsedMs} ms",
-                    context.Request.Method,
-                    context.Request.Path.Value,
-                    context.User.GetUserId()?.ToString() ?? "anonymous",
-                    context.Connection.RemoteIpAddress,
-                    requestedAt,
-                    statusCode,
-                    (long)timeProvider.GetElapsedTime(started).TotalMilliseconds
-                );
-            }
+            logger.LogInformation(
+                "{Method} {Path} by {UserId} from {RemoteIp} at {RequestedAt:o} returned {StatusCode} in {ElapsedMs} ms",
+                context.Request.Method,
+                context.Request.Path.Value,
+                context.User.GetUserId()?.ToString() ?? "anonymous",
+                context.Connection.RemoteIpAddress,
+                requestedAt,
+                statusCode,
+                (long)timeProvider.GetElapsedTime(started).TotalMilliseconds
+            );
         }
     }
 }

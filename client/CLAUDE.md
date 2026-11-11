@@ -1,4 +1,3 @@
-# CLAUDE.md — Smart Task Management System (Frontend)
 
 Angular 20 frontend for the Smart Task Management System. The backend is a separate ASP.NET Core API (Clean Architecture, REST/JSON, dynamic RBAC). This file defines how code in this repo must be written. Follow it on every change.
 
