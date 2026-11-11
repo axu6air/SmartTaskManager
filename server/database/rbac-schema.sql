@@ -2,6 +2,20 @@
    SmartTaskManager - full current schema (SQL Server). Source of truth.
    Filtered indexes require QUOTED_IDENTIFIER ON.
    ===================================================================== */
+
+/* ---------------------------------------------------------------------
+   0. DATABASE
+      Idempotent: created only if missing. Development startup
+      (DatabaseCreator) runs this script too, so the connection string
+      must name this same database.
+   --------------------------------------------------------------------- */
+IF DB_ID(N'SmartTaskManagement') IS NULL
+    CREATE DATABASE SmartTaskManagement;
+GO
+
+USE SmartTaskManagement;
+GO
+
 SET QUOTED_IDENTIFIER ON;
 SET ANSI_NULLS ON;
 GO
