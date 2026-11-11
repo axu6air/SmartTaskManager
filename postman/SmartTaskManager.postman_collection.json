@@ -106,6 +106,51 @@
               }
             }
           ]
+        },
+        {
+          "name": "Register user",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Permission users.manage (log in as admin@email.com first). Creates a user account; without roleId the user gets the default role. Returns 201 and stores the new user's id in `userId`. 409 if the email is taken, 404 if the role does not exist.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Jane Doe\",\n  \"email\": \"jane.doe@email.com\",\n  \"password\": \"Password123!\",\n  \"roleId\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body.success && body.data) { pm.collectionVariables.set('userId', body.data.id); }"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -475,6 +520,44 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"assigneeId\": \"{{assigneeId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI",
+      "item": [
+        {
+          "name": "Enhance task description",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ai/task-description",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ai",
+                "task-description"
+              ]
+            },
+            "description": "Permission ai.enhance_description. Returns an improved { title, description } suggestion; nothing is saved. Title is optional (max 200), description is required (max 4000). 502 for an unusable AI reply, 503 if the AI service is unavailable, 504 on timeout. Rate limited.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"fix login bug\",\n  \"description\": \"users cant login sometimes after password reset, need fix asap\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
