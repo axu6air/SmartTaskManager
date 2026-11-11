@@ -80,7 +80,7 @@ public class RequestLoggingMiddlewareTests
     }
 
     [Fact]
-    public async Task InvokeAsync_NextThrows_LogsA500AndRethrows()
+    public async Task InvokeAsync_NextThrows_RethrowsWithoutLogging()
     {
         var logger = new ListLogger();
         var middleware = new RequestLoggingMiddleware(
@@ -88,7 +88,8 @@ public class RequestLoggingMiddlewareTests
 
         var act = () => middleware.InvokeAsync(CreateContext(authenticated: true));
 
+        // The global exception handler (outside this middleware) logs the failure and writes the 500.
         await act.Should().ThrowAsync<InvalidOperationException>();
-        logger.Messages.Single().Should().Contain("returned 500");
+        logger.Messages.Should().BeEmpty();
     }
 }

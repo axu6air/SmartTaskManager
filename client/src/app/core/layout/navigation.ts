@@ -15,4 +15,5 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { path: '/dashboard', label: 'Dashboard', icon: 'chart', permissions: [Permissions.Dashboard.View] },
   { path: '/board', label: 'Task board', icon: 'board', permissions: [Permissions.Tasks.View], badge: 'myOpenTasks' },
   { path: '/roles', label: 'Roles & permissions', icon: 'shield', permissions: [Permissions.Roles.View] },
+  { path: '/register', label: 'Register user', icon: 'userPlus', permissions: [Permissions.Users.Manage] },
 ];

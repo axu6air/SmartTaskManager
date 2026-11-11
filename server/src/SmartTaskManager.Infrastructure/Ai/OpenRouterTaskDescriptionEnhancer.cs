@@ -48,6 +48,23 @@ public sealed class OpenRouterTaskDescriptionEnhancer(IChatClient client) : ITas
             throw AiServiceException.Timeout(ex);
         }
 
-        return TaskDescriptionPrompt.ParseResponse(response.Text) ?? throw AiServiceException.InvalidResponse();
+        // Null means the reply broke the JSON contract: not JSON, missing fields, or over the length limits.
+        EnhancedTask? task;
+        try
+        {
+            task = TaskDescriptionPrompt.ParseResponse(response.Text);
+        }
+        catch (Exception ex)
+        {
+            // Parsing is pure, so any exception here means the reply itself was unusable.
+            throw AiServiceException.InvalidResponse(ex);
+        }
+
+        if (task is null)
+        {
+            throw AiServiceException.InvalidResponse();
+        }
+
+        return task;
     }
 }

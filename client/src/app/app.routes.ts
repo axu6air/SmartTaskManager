@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard, guestGuard, permissionGuard } from '@core/auth/guards';
 import { Permissions } from '@core/auth/permissions';
-import { homePath } from '@core/layout/routing-support';
+import { homePath, unsavedChangesGuard } from '@core/layout/routing-support';
 import { Shell } from '@core/layout/shell';
 import { StatusPage } from '@core/layout/status-page';
 
@@ -43,6 +43,14 @@ export const routes: Routes = [
         canMatch: [permissionGuard],
         data: { permissions: [Permissions.Roles.View] },
         loadComponent: () => import('@features/roles/roles-page').then((m) => m.RolesPage),
+      },
+      {
+        path: 'register',
+        title: 'Register user',
+        canMatch: [permissionGuard],
+        canDeactivate: [unsavedChangesGuard],
+        data: { permissions: [Permissions.Users.Manage] },
+        loadComponent: () => import('@features/auth/register').then((m) => m.Register),
       },
       {
         path: 'no-access',

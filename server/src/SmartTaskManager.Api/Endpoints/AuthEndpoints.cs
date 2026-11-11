@@ -13,6 +13,7 @@ public static class AuthEndpoints
         group.MapRefreshToken();
         group.MapLogout();
         group.MapGetMe();
+        group.MapRegister();
 
         return app;
     }

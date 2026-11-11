@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { PreloadingStrategy, Route, RouterStateSnapshot, TitleStrategy } from '@angular/router';
+import { CanDeactivateFn, PreloadingStrategy, Route, RouterStateSnapshot, TitleStrategy } from '@angular/router';
+import { ConfirmDialogService } from '@core/ui/confirm-dialog.service';
 import { PermissionRouteData } from '@core/auth/guards';
 import { PermissionService } from '@core/auth/permission.service';
 import { Observable, EMPTY } from 'rxjs';
@@ -27,6 +28,17 @@ export class AppTitleStrategy extends TitleStrategy {
     this.title.setTitle(page ? `${page} · Smart Task Manager` : 'Smart Task Manager');
   }
 }
+
+/** For pages with a form: asks before leaving with unsaved changes. */
+export const unsavedChangesGuard: CanDeactivateFn<{ hasUnsavedChanges(): boolean }> = (page) =>
+  !page.hasUnsavedChanges() ||
+  inject(ConfirmDialogService).confirm({
+    title: 'Leave this page?',
+    message: 'You have unsaved changes that will be lost.',
+    confirmLabel: 'Leave',
+    cancelLabel: 'Stay',
+    danger: true,
+  });
 
 /** The first page in the menu this user may open, or the no-access page. */
 export function homePath(): string {

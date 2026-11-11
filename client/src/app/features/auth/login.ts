@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '@core/auth/auth.service';
 import { toAppError } from '@core/http/app-error';
 import { Icon } from '@shared/ui/icon';
+import { emailValidator } from '@shared/validators/email';
 import { applyServerErrors } from '@shared/utils/server-errors';
 
 interface DemoAccount {
@@ -42,7 +43,7 @@ export class Login {
   protected readonly formError = signal<string | null>(null);
 
   protected readonly form = inject(NonNullableFormBuilder).group({
-    email: ['', [Validators.required, Validators.email, Validators.maxLength(256)]],
+    email: ['', [Validators.required, emailValidator, Validators.maxLength(256)]],
     password: ['', [Validators.required, Validators.maxLength(128)]],
   });
 

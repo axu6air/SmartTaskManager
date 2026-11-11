@@ -54,4 +54,12 @@ public sealed class AiServiceException : BaseException
             "The AI service returned an unusable response. Try again.",
             "The AI service response did not match the expected JSON contract."
         );
+
+    public static AiServiceException InvalidResponse(Exception innerException) =>
+        new(
+            AiErrorType.InvalidResponse,
+            "The AI service returned an unusable response. Try again.",
+            "The AI service response could not be parsed.",
+            innerException
+        );
 }

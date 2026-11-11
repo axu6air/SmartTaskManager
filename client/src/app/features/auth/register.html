@@ -1,0 +1,112 @@
+<div class="page">
+  <header class="page-head">
+    <div>
+      <h1>Register user</h1>
+      <p>Create an account for a new team member. Share the password with them securely.</p>
+    </div>
+  </header>
+
+  <section class="card form-card">
+    @if (created(); as user) {
+      <div class="alert alert-success" role="status">
+        <app-icon name="check" [size]="18" />
+        <span><b>{{ user.fullName }}</b> ({{ user.email }}) can now sign in as {{ user.roles.join(', ') }}.</span>
+      </div>
+    }
+
+    @if (formError(); as message) {
+      <div class="alert alert-danger" role="alert"><app-icon name="alert" [size]="18" /><span>{{ message }}</span></div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="stack-v">
+      <div class="two">
+        <div class="field">
+          <label for="reg-name">Full name</label>
+          <input id="reg-name" class="input" type="text" autocomplete="off" formControlName="fullName"
+            [attr.aria-invalid]="form.controls.fullName.invalid && form.controls.fullName.touched" aria-describedby="reg-name-err" />
+          @if (form.controls.fullName.touched && form.controls.fullName.errors; as e) {
+            <span id="reg-name-err" class="err">
+              @if (e['required']) { Enter the person’s name. }
+              @else if (e['maxlength']) { Keep the name under 150 characters. }
+              @else if (e['server']) { {{ e['server'] }} }
+            </span>
+          }
+        </div>
+
+        <div class="field">
+          <label for="reg-email">Email</label>
+          <input id="reg-email" class="input" type="email" autocomplete="off" placeholder="name@company.com" formControlName="email"
+            [attr.aria-invalid]="form.controls.email.invalid && form.controls.email.touched" aria-describedby="reg-email-err" />
+          @if (form.controls.email.touched && form.controls.email.errors; as e) {
+            <span id="reg-email-err" class="err">
+              @if (e['required']) { Enter an email address. }
+              @else if (e['email']) { Enter a valid email address, like name&#64;company.com. }
+              @else if (e['server']) { {{ e['server'] }} }
+              @else { The email is too long. }
+            </span>
+          }
+        </div>
+      </div>
+
+      <div class="two">
+        <div class="field">
+          <label for="reg-password">Password</label>
+          <div class="pw-wrap" [attr.data-invalid]="form.controls.password.invalid && form.controls.password.touched">
+            <input id="reg-password" [type]="showPassword() ? 'text' : 'password'" autocomplete="new-password" formControlName="password" aria-describedby="reg-password-hint reg-password-err" />
+            <button type="button" class="pw-toggle" (click)="showPassword.set(!showPassword())" [attr.aria-pressed]="showPassword()" aria-controls="reg-password">
+              {{ showPassword() ? 'Hide' : 'Show' }}
+            </button>
+          </div>
+          <span id="reg-password-hint" class="hint">At least 8 characters, with an uppercase letter, a lowercase letter and a digit.</span>
+          @if (form.controls.password.touched && form.controls.password.errors; as e) {
+            <span id="reg-password-err" class="err">
+              @if (e['required']) { Enter a password. }
+              @else if (e['server']) { {{ e['server'] }} }
+              @else { The password doesn’t meet the rules above. }
+            </span>
+          }
+        </div>
+
+        <div class="field">
+          <label for="reg-confirm">Confirm password</label>
+          <input id="reg-confirm" class="input" [type]="showPassword() ? 'text' : 'password'" autocomplete="new-password" formControlName="confirmPassword"
+            [attr.aria-invalid]="form.controls.confirmPassword.touched && (form.controls.confirmPassword.invalid || form.hasError('mismatch'))" aria-describedby="reg-confirm-err" />
+          @if (form.controls.confirmPassword.touched) {
+            @if (form.controls.confirmPassword.hasError('required')) {
+              <span id="reg-confirm-err" class="err">Repeat the password.</span>
+            } @else if (form.hasError('mismatch')) {
+              <span id="reg-confirm-err" class="err">The passwords don’t match.</span>
+            }
+          }
+        </div>
+      </div>
+
+      @if (canChooseRole()) {
+        <div class="field role-field">
+          <label for="reg-role">Role</label>
+          <select id="reg-role" class="input" formControlName="roleId">
+            <option value="">Default role</option>
+            @for (role of roles(); track role.id) {
+              <option [value]="role.id">{{ role.name }}</option>
+            }
+          </select>
+          @if (form.controls.roleId.errors?.['server']; as message) {
+            <span class="err">{{ message }}</span>
+          }
+        </div>
+      } @else {
+        <p class="hint">The account gets the default role. Roles can be changed later by someone who manages roles.</p>
+      }
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" [disabled]="pending()">
+          @if (pending()) {
+            <span class="spin"></span> Creating account…
+          } @else {
+            <app-icon name="plus" /> Create account
+          }
+        </button>
+      </div>
+    </form>
+  </section>
+</div>
